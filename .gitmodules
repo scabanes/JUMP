@@ -1,4 +1,0 @@
-[submodule "Torino"]
-	path = Torino
-	url = https://github.com/scabanes/JUMP/
-	branch = master
