@@ -1,11 +1,6 @@
 clear all
 close all
-%**********************************************************
-%           PARAMETRI DA SCEGLIERE
-%**********************************************************
-%roots = 'D:/simon/esperimento30/';
-roots = '/media/simon/simon/ESP_29/'
-% Resoluzione dei dati
+roots = '/media/simon/simon/ESP_29/'; % Root path..
 run([roots,'InfosFile.m'])
 %
 Create_Grid_pol_Galperin2015
@@ -25,16 +20,8 @@ theta = [0:(2.*pi)/Nti:2.*pi-(2.*pi)/Nti];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 load('besselzeros2_C.mat'); 
 % -----------------------------------------------------Campo di velocita
-g=2;
-% [Vtheta_tot,a] = loadmtx(['..\Vz' num2str(g)]);
-[Vtheta_tot,a] = loadmtx([roots,'Vz29_60_360']);
-%[Vtheta_tot,a] = loadmtx([roots,'Vz2']);
-
-
-[Vr_tot,a] = loadmtx([roots,'Vr29_60_360']);
-% [Vr_tot,a] = loadmtx(['..\Vr' num2str(g)]);
-%[Vr_tot,a] = loadmtx([roots,'Vr2']);
-
+[Vtheta_tot,a] = loadmtx([roots,NameVt]);
+[Vr_tot,a] = loadmtx([roots,NameVr]);
 % -----------------------------------------------------Truncation
 theta = theta(1:length(Ntmin:Ntmax)); % Attenzione theta deve partire da zero..
 % !!!!!! Attention encore un doute
@@ -47,7 +34,7 @@ Nt = length(theta);
 Nr = length(r);
 %
 [Vr] = Maps_Galperin2015(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,600);
-
+%
 Tmax=501%a(2);
 Itime=500
 EZn = zeros(Nrk,Tmax-Itime+1);
@@ -266,12 +253,16 @@ n_r=R/L_R;
 figure
 loglog(n,mean(EZn,2),'r')
 hold on
-loglog(n,mean(ERn,2),'k')
+loglog(n,mean(ERn,2),'k','LineWidth',2)
 loglog(n,EZ_Theo,'--r')
 loglog(n,ER_Theo,'--k')
 ylim([10.^(-7.) 0.1])
 xlim([n(1) n(end)])
-
+box on
+xlabel('n','FontSize',13,'FontWeight','bold','Color','k')
+ylabel('E (cm^2.s^2)','FontSize',13,'FontWeight','bold','Color','k')
+set(gca,'FontSize',13,'FontWeight','bold')
+title(['\epsilon = ',num2str(epsilon),' cm^2.s^{-3}'],'FontSize',11)
 
 
 
