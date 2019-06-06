@@ -48,10 +48,11 @@ Nr = length(r);
 %
 [Vr] = Maps_Galperin2015(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,600);
 
-Tmax=a(2);
+Tmax=501%a(2);
 Itime=500
 EZn = zeros(Nrk,Tmax-Itime+1);
 ERn = zeros(Nrk,Tmax-Itime+1);
+Urms = zeros(Tmax-Itime+1,1);
 iit=0;
 for it=Itime:Tmax
 display([num2str(it),'/',num2str(Tmax)])
@@ -150,6 +151,8 @@ end
 iit = iit+1;
 EZn(:,iit) = Emn(1,:);
 ERn(:,iit) = sum(Emn(2:end,:));
+
+Urms(iit)=mean(mean(sqrt(Vtheta.*Vtheta + Vr.*Vr)));
 end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                             Normalisation Bessel error:
@@ -241,12 +244,24 @@ plot(real(Vtheta_proj_step2(:,25)),'-*')
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                                SPECTRA:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+% ------------------ Integral spectral de l energie
+E_Ispectral = sum(mean(EZn,2)) + sum(mean(ERn,2));
+disp('########### Spectral #########################')
+disp('Energy = '), disp(num2str(E_Ispectral))
+Urms = sqrt(E_Ispectral);
+disp('Urms = '), disp([num2str(Urms),' cm/s'])
 
 % -------------------------------- Theoretical spectra
 EZ_Theo = (Cz*beta.^2.).*(1./R).*(J_root(1,1:Nrk)./R).^(-5.);
 ER_Theo = Ck.*(epsilon.^(2./3.))*(1./R).*(J_root(2,1:Nrk)./R).^(-5./3.);
 n = [1:Nrk]; % non-dimensional
+% ---------------------------------scales
+L_beta=(epsilon./beta.^3.).^(1./5.);
+Lo_beta = (Ck/Cz).^(3./10.).*(J_root(1,1:Nrk)./J_root(2,1:Nrk)).^(1./2.);
+Lhat_beta = (J_root(1,1:Nrk)./n).*Lo_beta.*L_beta;
+L_R = sqrt(2.*Urms./beta); 
+n_r=R/L_R;
+
 % -------------------------------- plots spectra
 figure
 loglog(n,mean(EZn,2),'r')
@@ -258,9 +273,7 @@ ylim([10.^(-7.) 0.1])
 xlim([n(1) n(end)])
 
 
-Ispectral = sum(mean(EZn,2)) + sum(mean(ERn,2));
-disp('########### Spectral #########################')
-disp('Energy = '), disp(num2str(Ispectral))
+
 
 %% ###########################################################################################################################
 %  ###########################################################################################################################
