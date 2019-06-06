@@ -23,14 +23,19 @@ Nrmin=1; Nrmax=Nri;    % Keep full radial domain
 
 %---------------------------------------------
 %-------------- Frames wanted
-Tmax=nan % if nan inputs the default value will be the number of frames 
+Tmax=nan; % if nan inputs the default value will be the number of frames 
         % contain in the input velocity file.
-Tmax=10;
+Tmax=2;
 Itime=1;
 
 %---------------------------------------------
-%-------------- Experimental device dimensions
-R=29.7; % radius of the tank in cm
+%-------------- Experimental device dimensions (cm)
+R=29.7;     % radius of the tank in cm
+g = 981;    % accelerazione di gravita
+Lx = 68;    % dimensione orizzontale della vasca
+Ly = 69;    % dimensione verticale della vasca
+H0 = 4;     % altezza di fluido a riposo
+Omega = 3;  % velocita angolare in rad/s
 
 %---------------------------------------------
 %-------------- Spectral quantities
