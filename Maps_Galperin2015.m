@@ -10,6 +10,7 @@ theta(end)*180./pi
 
 figure; title(['We work on a ',num2str(theta(end)*180./pi),' degres sector']); hold on
 contourf(Grid_Xp_cm,Grid_Yp_cm,Vtheta,250,'LineStyle','none')
+colorbar
 
 MT = nan(size(Grid_Xp_cm));
 MT(Ntmin, Nrmin:Nrmax) = 0.5;
@@ -26,6 +27,6 @@ Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
 
 figure; title('section we are working on')
 contourf(Grid_Xp_cm,Grid_Yp_cm,Vtheta,250,'LineStyle','none')
-
+colorbar
 end
 
