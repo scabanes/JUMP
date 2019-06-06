@@ -1,12 +1,15 @@
 clear all
 close all
+%**********************************************************
+%           PARAMETRI DA SCEGLIERE
+%**********************************************************
 roots = '/media/simon/simon/ESP_29/'; % Root path..
 run([roots,'InfosFile.m'])
-%
-Create_Grid_pol_Galperin2015
+%**********************************************************
 % Dimensioni
-scaleR=R/Nri;
-r=(1:Nri)*scaleR;
+Create_Grid_pol_Galperin2015
+dr=R/Nri;
+r=(1:Nri)*dr;
 theta = [0:(2.*pi)/Nti:2.*pi-(2.*pi)/Nti];
 %% ###########################################################################################################################
 %  ###########################################################################################################################
@@ -20,6 +23,11 @@ theta = [0:(2.*pi)/Nti:2.*pi-(2.*pi)/Nti];
 % -----------------------------------------------------Campo di velocita
 [Vtheta_tot,a] = loadmtx([roots,NameVt]);
 [Vr_tot,a] = loadmtx([roots,NameVr]);
+%
+if(isnan(Tmax)==1)
+    Tmax=a(2);
+end
+nFrames = Tmax-Itime+1;
 % -----------------------------------------------------Truncation
 theta = theta(1:length(Ntmin:Ntmax)); % Attenzione theta deve partire da zero..
 % !!!!!! Attention encore un doute
@@ -30,12 +38,8 @@ R=r(end);
 Nt = length(theta)
 Nr = length(r)
 %
-[Vr] = Maps_Galperin2015(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,600);
+[Vr] = Maps_Galperin2015(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,1);
 %
-if(isnan(Tmax)==1)
-    Tmax=a(2);
-end
-nFrames = Tmax-Itime+1;
 EZn = zeros(Nrk,nFrames);
 ERn = zeros(Nrk,nFrames);
 iit=0;
