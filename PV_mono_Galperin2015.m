@@ -9,14 +9,12 @@ roots = '/media/simon/simon/ESP_29/'; % Root path..
 run([roots,'InfosFile.m'])
 %**********************************************************
 Create_Grid_pol_Galperin2015
-dr=R/Nri;
-r=(1:Nri)*dr;
 % ##################################################################################################################################################
 %                                                                                                                                              LOAD:
 % ##################################################################################################################################################
 % Carichiamo input--------------------------
 nFrames = Tmax-Itime+1;
-[Pvpolrm,b]=loadmtx([roots,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nFrames)]);
+[Pvpolrm,b]=loadmtx([roots,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(Tmax)]);
 [Vz,b] = loadmtx([roots,NameVt]);
 
 % b(2)=nFrames
@@ -87,6 +85,7 @@ for it=1:nFrames
 Ndata_raggio_t(:,it) = Ndata_raggio;
 Ndata_cerchi_t(:,it) = Ndata_cerchi;
 end
+if(0==1)
 figure
 subplot(2,1,1);
 plot(Ndata_raggio_t,'.')
@@ -94,16 +93,18 @@ ylabel('Number of data points in azimuth')
 subplot(2,1,2);
 plot(Ndata_cerchi_t,'.')
 ylabel('Number of data points on the radius')
+end
 PtDaTogliereR = [];% one has to put '[]' if no point to take out 
 PtDaTogliereT = [1:Ntmin,Ntmax:360];% one has to put '[]' if no point to take out 
 %##########################################################################
-%Create_Grid_pol_Torino_m
 figure
 pcolor(Grid_Xp_cm,Grid_Yp_cm,reshape(Pvpolrm(:,1),Nti,Nri)); shading interp
 
-% ##################################################################################################################################################
-%                                                                                                                                   LOOP SUL TEMPO:
-% ##################################################################################################################################################
+%% ###########################################################################################################################
+%  ###########################################################################################################################
+%                                                   PV MONOTISAZIONE
+%  ###########################################################################################################################
+%  ###########################################################################################################################
 Mono_rpt = zeros(Nti,Nri,nFrames);
 Lm_t = zeros(Nti,nFrames);
 Mono_rpt_zm = zeros(Nri,nFrames);
@@ -117,35 +118,42 @@ Vz_zmt = zeros(Nri,nFrames);
 dVortPot_zm_dr = nan(Nri,1);
 dVortPot_zmt_dr= zeros(Nri,nFrames);
 
+% ##################################################################################################################################################
+%                                                                                                                                   LOOP SUL TEMPO:
+% ##################################################################################################################################################
 for it=1:nFrames
-it
+disp(it)
+%--------------------------------------------------------------------------
+% ------------- Reshape
 pvPolr=reshape(Pvpolrm(:,it),Nti,Nri);
 Vz_t=reshape(Vz(:,it),Nti,Nri);
+%--------------------------------------------------------------------------
+% ------------- Taglio sui punti
 % Togliamo i punti con pocchi dati schelto in PtDaTogliere;
 pvPolr(:,PtDaTogliereR) = nan;
 Vz_t(:,PtDaTogliereR) = nan;
 pvPolr(PtDaTogliereT,:) = nan;
 Vz_t(PtDaTogliereT,:) = nan;
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                INSTATANEOUS OF PV MONO:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 a=size(pvPolr);
 LL_m = zeros(a(1),1);
 Mono_rp = zeros(a);
-    for iphi=1:Nti
+    for iphi=1:Nti%----------------------------------------------------------------------Loop on theta
+        %--------------------------------------------------------------------------
+        % ------------- Sorting instantaneoous of PV with nonan.
         aa = ~isnan(pvPolr(iphi,:));
         pvPolr_NoNan = pvPolr(iphi,aa)';
-    % How many data we have on the radius
-    % it allows to define the angolar area in 
-    % which we perform the zonal mean of the 
-    % the monotonized profils.
     
         unsortI = reshape(1:length(pvPolr_NoNan),size(pvPolr_NoNan));%,size(X_NoNan);
-    %[Mono,sortI] = sort(X_NoNan,1,'ascend');
+        %[Mono,sortI] = sort(X_NoNan,1,'ascend');
         [Mono,sortI] = sort(pvPolr_NoNan,1,'descend');
-
-    
+ 
         L = (unsortI-sortI).*dr;
         L_m = squeeze((sum(L.^2)./sum((L~=0))).^0.5);
-   
+        %--------------------------------------------------------------------------
+        % ------------- Save Monotonized prf in a Martix. Non-used.
         ii=1;
         jj=1;
         for iR = 1:Nri
@@ -159,14 +167,16 @@ Mono_rp = zeros(a);
             end
             jj = jj+1;
         end
+        %--------------------------------------------------------------------------
+        % ------------- Save LM for PI
 
-
-    LL_m(iphi) = L_m;
-    clear L_M
-    
+        LL_m(iphi) = L_m;
+        clear L_M
     end
-
-    for iR = 1:Nri
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                   ZONAL MEAN ON THE PV:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    for iR = 1:Nri%----------------------------------------------------------------------Loop on radius
         % zonal mean della PV
         cc = ~isnan(pvPolr(:,iR));
         VortPot_zm(iR) = mean(pvPolr(cc,iR));
@@ -174,7 +184,9 @@ Mono_rp = zeros(a);
         ccc = ~isnan(Vz_t(:,iR));
         Vz_zm(iR) = mean(Vz_t(ccc,iR));
     end
-    
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                        DERIVATA DELLA PV IN ZONAL MEAN:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     pprima=1;
     for iR = 1:Nri
         if (~isnan(VortPot_zm(iR)) == 1 & pprima == 1) % derivata in avanti
@@ -208,12 +220,16 @@ Mono_rp = zeros(a);
 % % % %     Mono_rp_zm(iR) = mean(Mono_rp_pm_SNan);
 % % % % end
 
-
+%--------------------------------------------------------------------------
+% ------------- For PI
 Lm_t(:,it) = LL_m;
 Mono_rpt(:,:,it) = Mono_rp;
-
+%--------------------------------------------------------------------------
+% ------------- For PII & PIII
 % PV & Velocita mediate
 VortPot_zmt(:,it) = VortPot_zm;
+%--------------------------------------------------------------------------
+% ------------- AUTRES
 Vz_zmt(:,it) = Vz_zm;
 % Derivata della vorticita e media zonale
 dVortPot_zmt_dr(:,it) = dVortPot_zm_dr;
@@ -222,6 +238,13 @@ dVortPot_zmt_dr(:,it) = dVortPot_zm_dr;
 end
 figure
 pcolor(Grid_Xp_cm,Grid_Yp_cm,pvPolr); shading interp
+
+%% ###########################################################################################################################
+%  ###########################################################################################################################
+%                                                   PROCEDURE
+%  ###########################################################################################################################
+%  ###########################################################################################################################
+
 % ##################################################################################################################################################
 %                                                                                                                              VORTICITA POTENTIALE:
 % ##################################################################################################################################################
@@ -233,13 +256,13 @@ pcolor(Grid_Xp_cm,Grid_Yp_cm,pvPolr); shading interp
 %              !!! c'e un criterio sulla griglia!!! --> The criterion on
 %              the grid might be a bit subjective and make that procedure
 %              less convicing.
-% Procedure II: medie temporale e spaziale sui profili di vorticit�
+% Procedure II: medie temporale e spaziale sui profili di vorticita
 %               Facciamo la media zonale e temporale dei profili di
-%               vorticit�. Dopo monotoniziamo e esce la scala su un solo 
+%               vorticita. Dopo monotoniziamo e esce la scala su un solo 
 %               profilo mediato. --> Averaging procedure are likely to kill
 %               turbulence properties
-% Procedure III: media spaziale sulla vorticit� e temporale sulla scala 
-%               Facciamo la media zonale della vorticit�, monotoniziamo
+% Procedure III: media spaziale sulla vorticita e temporale sulla scala 
+%               Facciamo la media zonale della vorticita, monotoniziamo
 %               e esce la scala di Thorpe per ogni instantaneo. Dopo
 %               mediamo la scala sul tempo. ----> THE ONE I WOULD PREFERE
 % #########################################################################
@@ -251,8 +274,8 @@ pcolor(Grid_Xp_cm,Grid_Yp_cm,pvPolr); shading interp
 % criterio che taglia i profili radiali troppo corti per avere la
 % risoluzione della scala di Thorpe, i.e. ai bordi angolari della
 % camera.
-criterio = 10;
-disp('Attenzione la scala di Thorpe deve essere al massimo la met� di:')
+criterio = 15;
+disp('Attenzione la scala di Thorpe deve essere al massimo la meta di:')
 disp(num2str(dr*criterio))
 % Media temporale e seleziona un settore definito 
 % dove ci sono meno dati del criterio
