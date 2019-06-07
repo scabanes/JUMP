@@ -5,7 +5,7 @@ close all
 %**********************************************************
 %           PARAMETRI DA SCEGLIERE
 %**********************************************************
-roots = '/media/simon/simon/ESP_29/'; % Root path..
+roots = '/media/simon/simon/ESP_31/'; % Root path..
 run([roots,'InfosFile.m'])
 %**********************************************************
 Create_Grid_pol_Galperin2015
@@ -14,7 +14,7 @@ Create_Grid_pol_Galperin2015
 % ##################################################################################################################################################
 % Carichiamo input--------------------------
 nFrames = Tmax-Itime+1;
-[Pvpolrm,b]=loadmtx([roots,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(Tmax)]);
+[Pvpolrm,b]=loadmtx([roots,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nFrames)]);
 [Vz,b] = loadmtx([roots,NameVt]);
 
 % b(2)=nFrames

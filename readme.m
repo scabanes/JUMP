@@ -6,14 +6,15 @@
 % _________________________________________________________________________
 %                               VASCA
 % _________________________________________________________________________
+%% Infos:
+%->>> InfosFile.m
+% This file has to be nest in the "roots" repository where fes data of the 
+% velocity fields are.
+% _________________________________________________________________________
 % A) --- Spectral analysis
 %% MAIN:
 %->>> SpectralAnalysis_FB_Galperin2015.m
 % Here we compute the spectral analysis. Everything is in cm !!
-%% Infos:
-%->>> InfosFile.m
-% This file has to be nest in the repository where fes data of the velocity
-% fields are.
 %% Sub-routines:
 %->>> FourierBesselDecomp.m
 % Function that compute the spectral decomposition.
@@ -29,20 +30,24 @@
 % Plots files saved in the Main.
 % _________________________________________________________________________
 % B) --- Potential Vorticity monotonization
-%% MAIN:
+%% MAINS:
 %->>> DerivateVorticita_Galperin2015.m
 % Leads to relative and potential vorticity for all frames. Data are saved
 % in the appropriate folder.
 %->>> PV_mono_Galperin2015.m:
 % PV is monotonized/sorted in order to extract the equivalent Thorpe scale
 % denoted L_M. Three averaging procedures can be followed as detailed in
-% PV_mono_Torino. At that stage procedure III is likely to be selected as
-% final results.
-% By looking at the number of points on the radisu and in azimuth one might
+% PV_mono_Torino.
+% By looking at the number of points on the radius and in azimuth one might
 % have to take out some points. PtDaTogliere = (pt1,pt2,...) give the index
 % of the points to take out on the radius when there is too few data to
 % have a complete radial profil.
 %                           --> L_M is the result of PV mono.
+%% Plot-routines:
+%->>> PV_Plots
+% Plots files saved in the Mains.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,6 +1,8 @@
 %**********************************************************
 %           PARAMETRI DA SCEGLIERE
 %**********************************************************
+% NOTE: Demander à Stefania de rajouter le nombre de frames 
+% dans le titre du fichier des champs de vitesse, 'Vz29_60_360_nFrames'.
 %---------------------------------------------
 %-------------- Nomenclature
 NameVt = 'Vz29_60_360'; % Put the name of the azimuthal velocity file
@@ -23,14 +25,13 @@ Nrmin=1; Nrmax=Nri;    % Keep full radial domain
 
 %---------------------------------------------
 %-------------- Frames wanted
-Tmax=nan; % if nan inputs the default value will be the number of frames 
+% Tmax=nan; % if nan inputs the default value will be the number of frames 
         % contain in the input velocity file.
-Tmax=2;
+Tmax=1000;
 Itime=1;
 
 %---------------------------------------------
 %-------------- Experimental device dimensions (cm)
-R=29.7;     % radius of the tank in cm
 g = 981;    % accelerazione di gravita
 Lx = 68;    % dimensione orizzontale della vasca
 Ly = 69;    % dimensione verticale della vasca

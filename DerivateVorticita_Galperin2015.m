@@ -16,7 +16,7 @@ clear all
 %**********************************************************
 %           PARAMETRI DA SCEGLIERE
 %**********************************************************
-roots = '/media/simon/simon/ESP_29/'; % Root path..
+roots = '/media/simon/simon/ESP_31/'; % Root path..
 run([roots,'InfosFile.m'])
 %**********************************************************
 Create_Grid_pol_Galperin2015
@@ -24,8 +24,8 @@ Create_Grid_pol_Galperin2015
 %                                                                                                                                       BETA EFFECT:
 % ##################################################################################################################################################
 f0=2.*Omega;
-s = Omega^2/(2*g);
-Hc = H0-(s*(Lx^2+Ly^2)/12);
+s = Omega.^2/(2.*g);
+Hc = H0-(s*(Lx.*Lx + Ly.*Ly)/12);
 H=Hc+(r.^2).*(s);
 % ##################################################################################################################################################
 %                                                                                                                                              LOAD:
@@ -33,9 +33,9 @@ H=Hc+(r.^2).*(s);
 [Vz_int,b] = loadmtx([roots,NameVt]);
 [Vr_int,b] = loadmtx([roots,NameVr]);
 %
-if(isnan(Tmax)==1)
-    Tmax=b(2);
-end
+% if(isnan(Tmax)==1)
+%     Tmax=b(2);
+% end
 nFrames = Tmax-Itime+1;
 %
 dVz_r_time = zeros (Nti*Nri,nFrames);
@@ -95,7 +95,7 @@ for t=Itime:Tmax
   dVr_dphi = dVr./(2*dtheta);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% PRIMI e ULTIMI PUNTI
+%% PRIMI e ULTIMI PUNTI SPAZIALE per derivate
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
 % ------------- Derivata sul raggio
