@@ -19,10 +19,7 @@ clear all
 roots = '/media/simon/simon/ESP_29/'; % Root path..
 run([roots,'InfosFile.m'])
 %**********************************************************
-%Create_Grid_pol_Galperin2015
-dr=R/Nri;
-r=(1:Nri)*dr;
-dphi =2.*pi/Nti;
+Create_Grid_pol_Galperin2015
 % ##################################################################################################################################################
 %                                                                                                                                       BETA EFFECT:
 % ##################################################################################################################################################
@@ -60,9 +57,11 @@ for t=Itime:Tmax
         
   dVz = zeros(Nti,Nri);
   dVr = zeros(Nti,Nri);
-
- % dVz_2 = zeros(Nraggi,Ncerchi);
-  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% VETTORE-matrice DVz/Dr
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------
+% ------------- Derivata sul raggio
   % calcolo le differenze sulla V zonale
     for i=2:Nri-1
     
@@ -75,7 +74,10 @@ for t=Itime:Tmax
      %   dVz_2(:,i) = Vz(:,i+1) - 2*Vz(:,i) + Vz(:,i-1);
     
     end
- 
+% derivata prima
+  dVz_dr = dVz./(2*dr);
+%--------------------------------------------------------------------------
+% ------------- Derivata su theta
      % calcolo le differenze sulla V radiale
     for ii=2:Nti-1
     
@@ -89,15 +91,14 @@ for t=Itime:Tmax
      %   dVz_2(:,i) = Vz(:,i+1) - 2*Vz(:,i) + Vz(:,i-1);
     
      end
-  
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55
-%% VETTORE-matrice DVz/Dr
+% derivata prima
+  dVr_dphi = dVr./(2*dtheta);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PRIMI e ULTIMI PUNTI
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% derivata prima
-  dVz_dr = dVz./(2*dr);
-% derivata prima
-  dVr_dphi = dVr./(2*dphi);
-  
+%--------------------------------------------------------------------------
+% ------------- Derivata sul raggio
   for j=1:Nti
   aa = ~isnan(Vz(j,:));
   aa_min = min(find(aa==1));
@@ -108,18 +109,20 @@ for t=Itime:Tmax
     %%per il punto r(0) uso le differenze finite in avanti
   dVz_dr (j,aa_min) = (r(aa_min+1).*Vz(j,aa_min+1) - r(aa_min).*Vz(j,aa_min))./(dr);
   end
-
+%--------------------------------------------------------------------------
+% ------------- Derivata su theta
     for jj=1:Nri
   aaa = ~isnan(Vr(:,jj));
   aaa_min = min(find(aaa==1));
   aaa_max = max(find(aaa==1));
   %find(aa==1)
     %%per il punto r(Ncerchi) uso le differenze finite all'indietro
-  dVr_dphi (aaa_max,jj) = (Vr(aaa_max,jj) - Vr(aaa_max-1,jj))./(dphi);
+  dVr_dphi (aaa_max,jj) = (Vr(aaa_max,jj) - Vr(aaa_max-1,jj))./(dtheta);
     %%per il punto r(0) uso le differenze finite in avanti
-  dVr_dphi (aaa_min,jj) = (Vr(aaa_min+1,jj) - Vr(aaa_min,jj))./(dphi);
+  dVr_dphi (aaa_min,jj) = (Vr(aaa_min+1,jj) - Vr(aaa_min,jj))./(dtheta);
     end
-
+%--------------------------------------------------------------------------
+% ------------- Vorticita
     VortRelat = zeros(Nti,Nri);
     VortPot = zeros(Nti,Nri);
     VortPot1 = zeros(Nti,Nri);
@@ -137,14 +140,24 @@ for t=Itime:Tmax
          VortPot_zm(k) = mean(VortPot(cc,k));
 
     end
-    
-           
-  %% matrice [Nraggi*Ncerchi, totaltime]
-  dVz_r_time (:,t) = dVz_dr(:);
-  dVr_phi_time (:,t) = dVr_dphi(:);
-  VortRelat_time(:,t) = VortRelat(:);
-  VortPot_time(:,t) = VortPot(:);
-  VortPot_zm_time(:,t) = VortPot_zm(:);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% matrice [Nraggi*Ncerchi, totaltime]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------
+% ------------- Condizione su r=0
+% !!! This is important for not having Inf value.
+% se r=0 exists then we put a nan instead of having infinity in the
+% vorticity which is: vort ~ 1/r (...)
+VortRelat(:,find(r==0))=nan;
+VortPot(:,find(r==0))=nan;
+VortPot_zm(find(r==0))=nan;
+%--------------------------------------------------------------------------
+% ------------- Save Matrices in time
+dVz_r_time (:,t) = dVz_dr(:);
+dVr_phi_time (:,t) = dVr_dphi(:);
+VortRelat_time(:,t) = VortRelat(:);
+VortPot_time(:,t) = VortPot(:);
+VortPot_zm_time(:,t) = VortPot_zm(:);
 
   
   % derivata seconda  
