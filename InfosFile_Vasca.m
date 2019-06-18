@@ -3,8 +3,13 @@
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
+%********************** Fields interpp on a polar grid 
 NameVt = '/Vz29_60_360'; % Put the name of the azimuthal velocity file
 NameVr = '/Vr29_60_360'; % Put the name of the radial velocity file
+%********************** Fields interpp on a cartesian grid 
+NameU = '/U2_cart';
+NameV = '/V2_cart';
+NameVort =  '/Vort2_cart';
 
 %---------------------------------------------
 %-------------- Fields dimensions

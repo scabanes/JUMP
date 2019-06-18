@@ -16,8 +16,8 @@
 %->>> Main_suffix.m
 % paths and few infos heve to be entered here and Sub-routines
 % appropriately uncommented to run. 
-% Note that Create_Grid_pol_suffix.m sets the appropriate grid on which data have been
-% interpolated.
+% Note that Create_Grid_pol_suffix.m sets the appropriate grid on which data 
+% have been interpolated.
 %% Sub-routines:
 % 1/ Statistic-----------------------
 %->>> SpectralAnalysis_FB.m
@@ -45,8 +45,8 @@
 %->>> Main_suffix.m
 % paths and few infos heve to be entered here and Sub-routines
 % appropriately uncommented to run. 
-% Note that Create_Grid_pol_suffix.m sets the appropriate grid on which data have been
-% interpolated.
+% Note that Create_Grid_pol_suffix.m sets the appropriate grid on which data
+% have been interpolated.
 %% Sub-routines:
 %->>> DerivateVorticita.m
 % Leads to relative and potential vorticity for all frames. Data are saved
@@ -63,7 +63,24 @@
 %% Plot-routines:
 %->>> PV_Plots
 % Plots files saved in the Mains.
+% _________________________________________________________________________
+%                    C. Energy and Enstrophy Fluxes
+% _________________________________________________________________________
+% This codes are based on: Evidence for the double cascade scenario in two-
+% dimensional turbulence,  G. Boffetta1 and S. Musacchio 2010. 
+% DOI: 10.1103/PhysRevE.82.016307
+%% MAIN:
+%->>> Main_suffix.m
+% paths and few infos heve to be entered here and Sub-routines
+% appropriately uncommented to run. 
+% Note that Create_Grid_pol_suffix.m sets the appropriate grid on which data
+% have been interpolated.
+%% Sub-routines:
+%->>> EFlux_Energy.m & EFlux_Enstrophy.m
+%->>> EFlux_GaussFilter_U_V - EFlux_GaussFilter_UU_VV_UV.m - EFlux_GaussFilter_Vort_UVort_VVort
 
+%% Plot-routines:
+%->>> EFlux_Plots
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

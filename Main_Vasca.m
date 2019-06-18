@@ -20,7 +20,7 @@ Tmax=10; % Time max wanted, nFrames being its maximum value
 Itime=1;
 nTime = Tmax-Itime+1;
 %
-Tocm = 1.; % Fattore necessario per avere cm -> 1. if it is in cm
+Tocm = 1.; % Fattore necessario per avere cm -> 1. if it is already in cm
 
 %---------------------------------------------
 %-------------- Grid
@@ -37,11 +37,20 @@ Create_Grid_pol_Vasca
 %--------------------------------------------------------------------------
 
 % ->>> Spectral Analysis
-SpectralAnalysis_FB
+%SpectralAnalysis_FB
 
 %SpectralAnalysis_Plots
 
 % ->>> PV Monotonization
-% DerivateVorticita
-% 
-% PV_mono
+%DerivateVorticita
+%   
+%PV_mono
+
+% ->>> Energy & Enstrophy fluxes
+% One has to choose how to discretise the smallest scales:
+dl=0.4;
+% EFlux_Energy
+
+% EFlux_Enstrophy
+
+EFlux_Plots
