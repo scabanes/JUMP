@@ -5,7 +5,7 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'ESP_31'; %
+Name = 'ESP_29'; %
 roots = '/media/simon/simon/'; % Root path..
 %**********************************************************
 
@@ -16,7 +16,7 @@ run([roots,Name,'/InfosFile_Vasca.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-Tmax=10; % Time max wanted, nFrames being its maximum value
+Tmax=1000; % Time max wanted, nFrames being its maximum value
 Itime=1;
 nTime = Tmax-Itime+1;
 %
@@ -37,20 +37,24 @@ Create_Grid_pol_Vasca
 %--------------------------------------------------------------------------
 
 % ->>> Spectral Analysis
-%SpectralAnalysis_FB
+% SpectralAnalysis_FB
 
-%SpectralAnalysis_Plots
+% SpectralAnalysis_Plots
 
 % ->>> PV Monotonization
 %DerivateVorticita
 %   
 %PV_mono
 
+%--------------------------------------------------------------------------
+% Waring!! all code have to be called separately, step by step
+%--------------------------------------------------------------------------
 % ->>> Energy & Enstrophy fluxes
+%
 % One has to choose how to discretise the smallest scales:
 dl=0.4;
-% EFlux_Energy
+ EFlux_Energy
 
 % EFlux_Enstrophy
 
-EFlux_Plots
+% EFlux_Plots

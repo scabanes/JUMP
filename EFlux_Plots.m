@@ -3,11 +3,11 @@
 %% singolarmente e sovrapposti
 nodi =128;
    
-dth = 360/Nraggi;
-
-%calcolo il numero del raggio corrispondente ad un dato angolo 
-R1 = round(Ntmin/dth);
-R2 = round(Ntmax/dth);
+% dth = 360/Nraggi;
+% 
+% %calcolo il numero del raggio corrispondente ad un dato angolo 
+% R1 = round(Ntmin/dth);
+% R2 = round(Ntmax/dth);
 
 name_mtx = [roots,Name,'/Energy_flux_dl_' num2str(dl)];
 [F_Energy1,b] = loadmtx (name_mtx);
@@ -51,7 +51,7 @@ for n=1:N_l
     Fm_n_pol = interp2 ( X, Y,Fm_n,Grid_Xp_cm,Grid_Yp_cm,'spline');
     
     %media spaziale nel settore circolare considerato
-    Fm_n_pol_m (n) = mean (mean(Fm_n_pol (R1:R2,:)));
+    Fm_n_pol_m (n) = mean (mean(Fm_n_pol (Ntmin:Ntmax,:)));
   
 end   
     
@@ -137,7 +137,7 @@ for n=1:N_l
     Fm2_n_pol = interp2 ( X, Y,Fm2_n,Grid_Xp_cm,Grid_Yp_cm,'spline');
     
     %media spaziale nel settore circolare considerato
-    Hm_n_pol_m (n) = mean (mean(Fm2_n_pol (R1:R2,:)));
+    Hm_n_pol_m (n) = mean (mean(Fm2_n_pol (Ntmin:Ntmax,:)));
   
 end  
 

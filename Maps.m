@@ -18,6 +18,7 @@ MT(Ntmax, Nrmin:Nrmax) = 0;
 
 h=pcolor(Grid_Xp_cm,Grid_Yp_cm,MT);
 set(h, 'EdgeColor', 'none');
+caxis([-1.5 1.5])
 % cut
 Vtheta=Vtheta(Ntmin:Ntmax,Nrmin:Nrmax);
 Vr=Vr(Ntmin:Ntmax,Nrmin:Nrmax);
@@ -28,6 +29,7 @@ Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
 figure; title('section we are working on')
 contourf(Grid_Xp_cm,Grid_Yp_cm,Vtheta,250,'LineStyle','none')
 colorbar
+caxis([-1.5 1.5])
 returnOK = 'Ok';
 end
 
