@@ -69,6 +69,7 @@
 % This codes are based on: Evidence for the double cascade scenario in two-
 % dimensional turbulence,  G. Boffetta1 and S. Musacchio 2010. 
 % DOI: 10.1103/PhysRevE.82.016307
+% !! Here data have to be interpolated on a cartesian grid.
 %% MAIN:
 %->>> Main_suffix.m
 % paths and few infos heve to be entered here and Sub-routines
