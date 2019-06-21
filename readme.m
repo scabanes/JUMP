@@ -72,16 +72,20 @@
 % !! Here data have to be interpolated on a cartesian grid.
 %% MAIN:
 %->>> Main_suffix.m
-% paths and few infos heve to be entered here and Sub-routines
+% paths and few infos have to be entered here and Sub-routines
 % appropriately uncommented to run. 
 % Note that Create_Grid_pol_suffix.m sets the appropriate grid on which data
 % have been interpolated.
 %% Sub-routines:
-%->>> EFlux_Energy.m & EFlux_Enstrophy.m
-%->>> EFlux_GaussFilter_U_V - EFlux_GaussFilter_UU_VV_UV.m - EFlux_GaussFilter_Vort_UVort_VVort
-
+%->>> EFlux.m:
+% It compute the energy and enstrophy flux using a filtering methode.
+%->>> GaussianFilter.m
+% The filtering approach is computed using the convolution og the fields
+% with a gaussian function G. Field_fil = conv(Field,G). Fluxes are
+% obtained by filtering at different scales the velocity and vorticity
+% fields.
 %% Plot-routines:
-%->>> EFlux_Plots
+%->>> EFlux_Plots.m
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
