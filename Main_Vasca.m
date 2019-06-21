@@ -16,7 +16,7 @@ run([roots,Name,'/InfosFile_Vasca.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-Tmax=1000; % Time max wanted, nFrames being its maximum value
+Tmax=5; % Time max wanted, nFrames being its maximum value
 Itime=1;
 nTime = Tmax-Itime+1;
 %
@@ -52,9 +52,9 @@ Create_Grid_pol_Vasca
 % ->>> Energy & Enstrophy fluxes
 %
 % One has to choose how to discretise the smallest scales:
-dl=0.4;
- EFlux_Energy
-
+% dl=0.4;
+% EFlux_Energy_old
 % EFlux_Enstrophy
 
-% EFlux_Plots
+EFlux
+EFlux_Plots
