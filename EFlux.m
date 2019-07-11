@@ -26,11 +26,12 @@ clear s H Hc% give in Create_Grid_pol_Vasca and can be used in the following.
 [Vort,b]=loadmtx([roots,Name,NameVort]);
 % We work on a squared cartesian grid. nodi is the length of it. 
 nodi = b(1)^0.5;
-passo_fr = 5;
 gridtocm = (data7*cmpx)/nodi;
-Vl = [0.4:0.4:4,5:nodi];
 N_l = length(Vl);
-
+%
+figure
+contourf(reshape(U(:,1),nodi,nodi),250,'LineStyle','none')
+colorbar
 %  ###########################################################################################################################
 %  #################################################### Filtraggio ###########################################################
 %  ###########################################################################################################################

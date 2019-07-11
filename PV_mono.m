@@ -37,6 +37,7 @@
 % ##################################################################################################################################################
 % Carichiamo input--------------------------
 [Pvpolrm,b]=loadmtx([roots,Name,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
+%[PvRelat,b]=loadmtx([roots,Name,'/VortRelat_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
 [Vz,b] = loadmtx([roots,Name,NameVt]);
 % ##################################################################################################################################################
 %                                                                                                                                   NUMERO DEI DATI:
@@ -249,7 +250,7 @@ pcolor(Grid_Xp_cm,Grid_Yp_cm,pvPolr); shading interp
 % criterio che taglia i profili radiali troppo corti per avere la
 % risoluzione della scala di Thorpe, i.e. ai bordi angolari della
 % camera.
-criterio = 15;
+criterio = 50;
 disp('Attenzione la scala di Thorpe deve essere al massimo la meta di:')
 disp(num2str(dr*criterio))
 % Media temporale e seleziona un settore definito 

@@ -2,7 +2,6 @@ function [returnOK] = Maps(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,Nti,Nri,Nrmin
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 
-
 Vtheta = reshape(Vtheta_tot(:,time),Nti,Nri);
 Vr = reshape(Vr_tot(:,time),Nti,Nri);
 

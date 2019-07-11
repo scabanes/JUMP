@@ -115,7 +115,12 @@ plot(asse_l,Fm_n_pol_m,'-*r','linewidth',1.5)
 
 plot(asse_l,Hm_n_pol_m,'-sb','linewidth',1.5)
 %plot(kz, Ez_k,'r','linewidth',1)
-   
+%----- scales
+% forcing, magnets
+line([1.2 1.2],get(gca,'YLim'),'Color','k')
+line([2*1.2 2*1.2],get(gca,'YLim'),'Color','k')
+% jets/Vortices separation
+line([6 6],get(gca,'YLim'),'Color','k')
 
  axis([asse_l(1) asse_l(end) -0.001 0.001 ])
 
@@ -162,8 +167,33 @@ box on
 
 
 
+%  ###########################################################################################################################
+%  #################################################### MAPS ################################################################
+%  ###########################################################################################################################
+% F_Energy(nodi*nodi,time,l)
+F_Energy_mt = squeeze(mean(F_Energy(:,:,:),2));
+axislimit = 6*10.^(-3);
+lidx1 = 18;
+figure
+contourf(X,Y,reshape(F_Energy_mt(:,lidx1),nodi,nodi),250,'LineStyle','none')
+title(['Energy flux at length l = ',num2str(round(asse_l(lidx1))),' cm'])
+colorbar
+caxis([-axislimit axislimit])
+
+lidx1 = 9;
+figure
+contourf(X,Y,reshape(F_Energy_mt(:,lidx1),nodi,nodi),250,'LineStyle','none')
+title(['Energy flux at length l = ',num2str(round(asse_l(lidx1))),' cm'])
+colorbar
+caxis([-axislimit axislimit])
 
 
+lidx1 = 4;
+figure
+contourf(X,Y,reshape(F_Energy_mt(:,lidx1),nodi,nodi),250,'LineStyle','none')
+title(['Energy flux at length l = ',num2str(round(asse_l(lidx1))),' cm'])
+colorbar
+caxis([-axislimit axislimit])
 
 
 if(0==1)

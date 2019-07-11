@@ -78,6 +78,9 @@
 % have been interpolated.
 %% Sub-routines:
 %->>> EFlux.m:
+%-------------------To do:
+% Pb de memoire pour accumuler tous les temps. Faire qqu chose.
+%--------------------------
 % It compute the energy and enstrophy flux using a filtering methode.
 %->>> GaussianFilter.m
 % The filtering approach is computed using the convolution og the fields

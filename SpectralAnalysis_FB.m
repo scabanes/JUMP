@@ -98,6 +98,7 @@ WR = Windowing.WindowingTukey(Grid_Xp_cm,2); % Tukey function on the Radial dire
 %%%%%%%%%%%%%%%%%%%%%%%ZEROS MATRICES
 EZn = zeros(Nrk,Tmax);
 ERn = zeros(Nrk,Tmax);
+Emn_t = zeros(Nrk*Nt,Tmax);
 %  ###########################################################################################################################
 %  ##################################################### Time Loop ###########################################################
 %  ###########################################################################################################################
@@ -155,6 +156,7 @@ end
 iit = iit+1;
 EZn(:,iit) = Emn(1,:);
 ERn(:,iit) = sum(Emn(2:end,:));
+Emn_t(:,iit) = Emn(:);
  end
 %  ###########################################################################################################################
 %  ################################################# End Time Loop ###########################################################
@@ -336,6 +338,14 @@ fid = fopen(filename2,'wb');
 fwrite(fid,size(ERn,1),'ulong');
 fwrite(fid,size(ERn,2),'ulong');
 fwrite(fid,ERn(:),'float');
+fclose(fid);
+% % % 
+fileout2 = [roots,Name,'/Emn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+filename2 = sprintf('%s.mtx',fileout2);
+fid = fopen(filename2,'wb');
+fwrite(fid,size(Emn_t,1),'ulong');
+fwrite(fid,size(Emn_t,2),'ulong');
+fwrite(fid,Emn_t(:),'float');
 fclose(fid);
 % % % 
 save([roots,Name,'/SpectralAnalysis_infos.mat'],'Urms','R','Nrk','M','nFrames','r','theta','Nrmin','Ntmin','Nrmax','Ntmax','Nr','Nt')

@@ -18,7 +18,7 @@ load([roots,Name,'/infos.mat'])
 %---------------------------------------------
 %-------------- Frames & Tocm
 nFrames = ((endi-starti)/step + 1);
-Tmax=2;
+Tmax=nFrames;
 Itime=1;
 nTime = Tmax-Itime+1;
 %
@@ -39,11 +39,11 @@ Create_Grid_pol_Torino_cm
 %--------------------------------------------------------------------------
 
 % ->>> Spectral Analysis
-SpectralAnalysis_FB
+%SpectralAnalysis_FB
 
 %SpectralAnalysis_Plots
 
 % ->>> PV Monotonization
 %DerivateVorticita
 
-%PV_mono
+PV_mono
