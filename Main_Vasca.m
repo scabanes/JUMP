@@ -5,7 +5,7 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'ESP_30_180'; %
+Name = 'ESP_29_flipped'; %
 roots = '/media/simon/simon/'; % Root path..
 %**********************************************************
 
@@ -16,7 +16,7 @@ run([roots,Name,'/InfosFile_Vasca.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-Tmax=300; % Time max wanted, nFrames being its maximum value
+Tmax=1;%2401; % Time max wanted, nFrames being its maximum value
 Itime=1;
 nTime = Tmax-Itime+1;
 %
@@ -38,9 +38,9 @@ Create_Grid_pol_Vasca
 % ->>> Spectral Analysis
 %--------------------------------------------------------------------------
 
-% SpectralAnalysis_FB
+SpectralAnalysis_FB
 
-SpectralAnalysis_Plots
+% SpectralAnalysis_Plots
 
 
 %--------------------------------------------------------------------------
@@ -48,11 +48,14 @@ SpectralAnalysis_Plots
 %--------------------------------------------------------------------------
 
 % DerivateVorticita
-%   
+% % % % % % %   
 % PV_mono
 
 %--------------------------------------------------------------------------
-% ->>> Energy & Enstrophy fluxes
+% ->>> Energy & Enstrophy fluxes% % DerivateVorticita
+% % % % % % %   
+% % PV_mono
+
 %--------------------------------------------------------------------------
 % One has to choose how to discretise the smallest scales:
 % dl=0.4;
@@ -61,6 +64,6 @@ SpectralAnalysis_Plots
 
 % passo_fr = 5;
 % Vl = [1:128];
-% 
+% % 
 % EFlux
 % EFlux_Plots

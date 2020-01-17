@@ -37,7 +37,7 @@
 % ##################################################################################################################################################
 % Carichiamo input--------------------------
 [Pvpolrm,b]=loadmtx([roots,Name,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
-%[PvRelat,b]=loadmtx([roots,Name,'/VortRelat_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
+% [PvRelat,b]=loadmtx([roots,Name,'/VortRelat_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
 [Vz,b] = loadmtx([roots,Name,NameVt]);
 % ##################################################################################################################################################
 %                                                                                                                                   NUMERO DEI DATI:
@@ -250,7 +250,7 @@ pcolor(Grid_Xp_cm,Grid_Yp_cm,pvPolr); shading interp
 % criterio che taglia i profili radiali troppo corti per avere la
 % risoluzione della scala di Thorpe, i.e. ai bordi angolari della
 % camera.
-criterio = 50;
+criterio = 30;
 disp('Attenzione la scala di Thorpe deve essere al massimo la meta di:')
 disp(num2str(dr*criterio))
 % Media temporale e seleziona un settore definito 
@@ -270,8 +270,183 @@ ddd=~isnan(Lm_mt);
 Lm_mtzm = mean(Lm_mt(ddd));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        THORPE SCALE
-disp('scala di Thorpe I:')
+disp('scala di Thorpe I - Full instantaneous (used):')
 disp(num2str(Lm_mtzm))
+
+
+%% ###########################################################################################################################
+%  ###########################################################################################################################
+%                                                  PLOTS
+%  ###########################################################################################################################
+%  ###########################################################################################################################
+% #################################################################################################################
+%                                                                                                   Letter's Plots:
+% #################################################################################################################
+% We set plots to write a letter
+iitt = 81; % 90 % choose a time to plot here
+Hmean = 4 ; % hauteur moyenne de fluide, 4 cm.
+% #########################################################################
+%                                                                       PV:
+% #########################################################################
+%__________________________________________________________________________
+%                           Plots Config
+%__________________________________________________________________________
+figure
+scrsz = get(0,'ScreenSize');
+set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
+   'Color',[1 1 1],'PaperPositionMode','auto')
+
+axes('FontSize',18,'Linewidth',2,'FontName','times',...
+     'TickLength',[0.01; 0.03],...%'Xdir','reverse',...
+     'Position',[0.13 0.17 0.82 0.75])   
+hold on
+subplot ('Position',[0.13 0.17 0.82 0.75]) 
+hold on
+%__________________________________________________________________________
+%----------------------------------Plot QGPV
+
+%-----------------------PLOTS instantaneous non-averaged data
+pvPolr=reshape(Pvpolrm(:,iitt),Nti,Nri);
+plot(pvPolr(260,:)/(Omega/Hmean),r,'-k','linewidth',2.)
+plot(Mono_rpt(260,:,iitt)/(Omega/Hmean),r,'-r','linewidth',1.)
+box on
+% ylim ([11 27])
+ylim ([9 27])
+
+
+% #########################################################################
+%                                                                  U Zonal:
+% #########################################################################
+%__________________________________________________________________________
+%                           Plots Config
+%__________________________________________________________________________
+figure
+scrsz = get(0,'ScreenSize');
+set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
+   'Color',[1 1 1],'PaperPositionMode','auto')
+
+axes('FontSize',18,'Linewidth',2,'FontName','times',...
+     'TickLength',[0.01; 0.03],...%'Xdir','reverse',...
+     'Position',[0.13 0.17 0.82 0.75])   
+hold on
+subplot ('Position',[0.13 0.17 0.82 0.75]) 
+hold on
+%__________________________________________________________________________
+%----------------------------------Plot QGPV
+
+%-----------------------PLOTS instantaneous non-averaged data
+plot(Vz_zmt(:,iitt),r,'-k','linewidth',2.)
+box on
+% ylim ([11 27])
+ylim ([9 27])
+
+% #################################################################################################################
+%                                                                                                    Letter's Maps:
+% #################################################################################################################
+
+% #########################################################################
+%                                                       Vorticita relativa:
+% #########################################################################
+% Path to colorbar repository
+addpath('/home/simon/Bureau/Esperimento-DICEA/JUMP/Altre-funzioni')
+addpath('/home/simon/Bureau/Esperimento-DICEA/JUMP/Altre-funzioni/cbrewer')
+%
+[PvRelat,b]=loadmtx([roots,Name,'/VortRelat_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
+pvPolr=reshape(PvRelat(:,iitt),Nti,Nri);
+fig=figure
+pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),pvPolr(Ntmin:Ntmax,:)); shading interp
+% contourf(GridR(180:end,:),GridT(180:end,:),pvPolr(180:end,:),50)
+colormap(cbrewer('div', 'RdBu', 30))
+colorbar
+mycmap = get(fig,'Colormap')
+set(fig,'Colormap',flipud(mycmap))
+caxis([-3 3]);
+title('Potential vorticity')
+
+% #########################################################################
+%                                                       Zonal and
+%                                                       meridional
+%                                                       velocity:
+% #########################################################################
+% --------- zonal velocity
+[Vtheta_tot,b]=loadmtx([roots,Name,NameVt]);
+Vtheta=reshape(Vtheta_tot(:,iitt),Nti,Nri);
+fig=figure
+pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),Vtheta(Ntmin:Ntmax,:)); shading interp
+% contourf(GridR(180:end,:),GridT(180:end,:),pvPolr(180:end,:),50)
+colormap(cbrewer('div', 'RdBu', 30))
+colorbar
+mycmap = get(fig,'Colormap')
+set(fig,'Colormap',flipud(mycmap))
+caxis([-3 3]);
+title('Zonal velocity')
+
+% --------- radial velocity
+[Vr_tot,b]=loadmtx([roots,Name,NameVr]);
+Vr=reshape(Vr_tot(:,iitt),Nti,Nri);
+fig=figure
+pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),Vr(Ntmin:Ntmax,:)); shading interp
+% contourf(GridR(180:end,:),GridT(180:end,:),pvPolr(180:end,:),50)
+colormap(cbrewer('div', 'RdBu', 30))
+colorbar
+mycmap = get(fig,'Colormap')
+set(fig,'Colormap',flipud(mycmap))
+caxis([-1 1]);
+title('radial velocity')
+% #################################################################################################################
+%                                                                                                       Multiplots:
+% #################################################################################################################
+cmtom = 100; % convert from cm to m
+%__________________________________________________________________________
+%                           Plots Config
+%__________________________________________________________________________
+figure; hold on
+ax1 = axes('FontSize',18,'Linewidth',2,'FontName','times',...
+     'TickLength',[0.01; 0.03])   
+%_________________________________________________________________________
+%----------------------------------Plot QGPV
+pvPolr=reshape(Pvpolrm(:,iitt),Nti,Nri);
+line(pvPolr(260,:).*Hmean,r,'Color','k','Linewidth',2.5)
+%----------------------------------Plot sorted QGPV
+line(Mono_rpt(260,:,iitt).*Hmean,r,'Color','r','Linewidth',1.5)
+% ax1 = gca; % current axes
+ax1.XColor = 'k';
+ax1.YColor = 'k';
+% xlabel('PV m^{-1}.s^{-1}')
+ax1_pos = ax1.Position; % position of first axes
+% ylim ([10 25])
+% xlim ([5 25])
+ylim ([10 23])
+xlim ([7 25])
+%_________________________________________________________________________
+%----------------------------------Plot Zonal velocity
+ax2 = axes('Position',ax1_pos,...
+    'XAxisLocation','top',...
+    'YAxisLocation','right',...
+    'Color','none','FontSize',18,'Linewidth',2,'FontName','times',...
+     'TickLength',[0.01; 0.03]);
+line(Vz_zmt(:,iitt)./cmtom,r,'Parent',ax2,'Color','k','Linewidth',2.5)
+ax2.XColor = 'k';
+ax2.YColor = 'k';
+
+% ylim ([10 25])
+% xlim ([-2 3.6]./cmtom)
+ylim ([10 23])
+xlim ([-2 0.5]./cmtom)
+title('Pv in s^{-1} and Vz en m s^{-1}')
+%% ###########################################################################################################################
+%  ###########################################################################################################################
+%  ###########################################################################################################################
+%  ###########################################################################################################################
+
+
+
+
+
+
+
+
+if(1==0)
 % #########################################################################
 %%                             Procedure II
 % #########################################################################
@@ -358,7 +533,7 @@ ax2.XColor = 'r';
 ax2.YColor = 'r';
 xlabel('DPV/Dr m^{-1}.s^{-1}')
 
-
+end
 
 
 % ##################################################################################################################################################
