@@ -199,5 +199,5 @@ fwrite(fid,size(E1_ky_t,2),'ulong');
 fwrite(fid,E1_ky_t(:),'float');
 fclose(fid);
 % % % 
-save([roots,Name,'/SpectralAnalysis_FF_infos.mat'],'Nkx','Nky','nFrames','x','y')
+save([roots,Name,'/SpectralAnalysis_FF_infos.mat'],'Nkx','Nky','nFrames','x','y','kx','ky')
 end

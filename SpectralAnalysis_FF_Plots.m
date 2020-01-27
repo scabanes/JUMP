@@ -15,8 +15,8 @@ Lx = x(end)-x(1); % en m
 Ly = y(end)-y(1); % en m
 dy = mean(y(2:end)-y(1:end-1));
 R=2.5;
-ky = (2*pi*[0:Nky-1])/Ly; % en m-1
-kx = (2*pi*[0:Nkx-1])/Lx; % en m-1
+ky_m = (2*pi*ky(1:Nky))/Ly; % en m-1
+kx_m = (2*pi*kx(1:Nkx))/Lx; % en m-1
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Zonostrophy:
@@ -24,8 +24,8 @@ kx = (2*pi*[0:Nkx-1])/Lx; % en m-1
 % les quantites theorique sont divisees par Ro pour passer des m^3 s-2 a
 % des m^2 s-2
 % -------------------------------- Theoretical spectra
-EZ_Theo = (Cz*beta.^2.).*ky(2:end).^(-5.); % [E] = m^3 s-2
-ER_Theo = Ck.*(epsilon.^(2./3.)).*ky(2:end).^(-5./3.); % [E] = m^3 s-2
+EZ_Theo = (Cz*beta.^2.).*ky_m(2:end).^(-5.); % [E] = m^3 s-2
+ER_Theo = Ck.*(epsilon.^(2./3.)).*ky_m(2:end).^(-5./3.); % [E] = m^3 s-2
 % ---------------------------------scales
 L_beta=(epsilon./beta.^3.).^(1./5.);
 % Lo_beta = (Ck/Cz).^(3./10.).*(J_root(1,1:Nrk)./J_root(2,1:Nrk)).^(1./2.);
@@ -54,8 +54,8 @@ close all
 % EQNSE_1 = (18/55)*Ck.*(epsilon.^(2./3.)).*kx(2:end).^(-5./3.); 
 % EQNSE_2 = 0.0926.*((2.*omega.*sin(pi/3)).^2.).*(kx(2:end)).^(-3.);
 % sur ky
-EQNSE_1 = 0.626*(epsilon.^(2./3.)).*ky(2:end).^(-5./3.); % [E] = m^3 s-2 
-EQNSE_2 = 0.24.*((2.*omega/(2*pi)).^2.).*(ky(2:end)).^(-3.); % [E] = m^3 s-2
+EQNSE_1 = 0.626*(epsilon.^(2./3.)).*ky_m(2:end).^(-5./3.); % [E] = m^3 s-2 
+EQNSE_2 = 0.24.*((2.*Omega/(2*pi)).^2.).*(ky_m(2:end)).^(-3.); % [E] = m^3 s-2
 EQNSE = EQNSE_1 + EQNSE_2;
 % -------------------------------- plots spectra zonostrophic formulation
 fig=figure; 
@@ -65,36 +65,36 @@ hax=axes;
 % loglog([1:Nkx-1],EQNSE_2/R,'-b')
 % loglog([1:Nkx-1],EQNSE_1/R,'-b')
 %
-loglog([0:Nky-1],mean(E1_ky_t,2),'k')
+loglog(ky_m,mean(E1_ky_t,2),'k', 'Linewidth',3)
 hold on
-loglog([1:Nky-1],EQNSE_2/Ro,'-b') % [E] = m^2 s-2
-loglog([1:Nky-1],EQNSE_1/Ro,'-b') % [E] = m^2 s-2
-loglog([1:Nky-1],EQNSE/Ro,'-r') % [E] = m^2 s-2
+loglog(ky_m(2:end),EQNSE_2/Ro,'-b') % [E] = m^2 s-2
+loglog(ky_m(2:end),EQNSE_1/Ro,'-b') % [E] = m^2 s-2
+loglog(ky_m(2:end),EQNSE/Ro,'--','Color','r', 'Linewidth',3.5) % [E] = m^2 s-2
+ylim([10.^(-10.) 10.^(-5.)])
+% xlim([0 Nky-1])
+box on
+xlabel('ky [m^{-1}]','FontSize',13,'FontWeight','bold','Color','k')
+ylabel('E_1 (m^2.s^2)','FontSize',13,'FontWeight','bold','Color','k')
+scrsz = get(0,'ScreenSize');
+set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
+    'Color',[1 1 1],'PaperPositionMode','auto')
+set(gca,'FontSize',13,'FontWeight','bold')
+title(['\epsilon = ',num2str(epsilon),' m^2.s^{-3}', 'and \Omega = ',num2str(Omega),' rad/s'],'FontSize',11)
+% 
+% disp(['#--> Here comes some quantities of ',Name,' :'])
+% disp(['epsilon = ',num2str(epsilon),' cm^2.s^{-3}'])
+% disp(['L_beta = ',num2str(L_beta)])
 
 
 
 
 
-
-% ylim([10.^(-7.) 0.3].*cm2tom2)
-% xlim([n(1) n(end)])
 % line([R/Lhat_beta(nhat) R/Lhat_beta(nhat)],get(hax,'YLim'),'Color',[0 0 0])
 % line([n_r n_r],get(hax,'YLim'),'Color',[0 0 0])
 % line([n_mag n_mag],get(hax,'YLim'),'Color',[0 0 0])
 % line([2*n_mag 2*n_mag],get(hax,'YLim'),'Color',[0 0 0])
 
-% box on
-% xlabel('n','FontSize',13,'FontWeight','bold','Color','k')
-% ylabel('E (cm^2.s^2)','FontSize',13,'FontWeight','bold','Color','k')
-% scrsz = get(0,'ScreenSize');
-% set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
-%     'Color',[1 1 1],'PaperPositionMode','auto')
-% set(gca,'FontSize',13,'FontWeight','bold')
-% title(['\epsilon = ',num2str(epsilon),' cm^2.s^{-3}'],'FontSize',11)
-% 
-% disp(['#--> Here comes some quantities of ',Name,' :'])
-% disp(['epsilon = ',num2str(epsilon),' cm^2.s^{-3}'])
-% disp(['L_beta = ',num2str(L_beta)])
+
 
 
 
