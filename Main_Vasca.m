@@ -5,7 +5,7 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'ESP_29_flipped'; %
+Name = 'ESP_31'; %
 roots = '/media/simon/simon/'; % Root path..
 %**********************************************************
 
@@ -38,7 +38,7 @@ Create_Grid_pol_Vasca
 % ->>> Spectral Analysis
 %--------------------------------------------------------------------------
 
-SpectralAnalysis_FB
+% SpectralAnalysis_FB
 
 % SpectralAnalysis_Plots
 
@@ -62,8 +62,8 @@ SpectralAnalysis_FB
 % EFlux_Energy_old
 % EFlux_Enstrophy
 
-% passo_fr = 5;
-% Vl = [1:128];
-% % 
-% EFlux
+passo_fr = 1;
+Vl = [1:128];
+% 
+EFlux
 % EFlux_Plots

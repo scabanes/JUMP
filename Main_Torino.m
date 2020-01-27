@@ -5,7 +5,7 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'EXPT09'; %
+Name = 'EXPT03'; %
 roots = '/media/simon/simon/Torino/';
 %**********************************************************
 
@@ -17,7 +17,7 @@ load('besselzeros2_C.mat');
 load([roots,Name,'/infos.mat'])
 %---------------------------------------------
 %-------------- Frames & Tocm
-nFrames = 1100%((endi-starti)/step + 1);
+nFrames = 2%((endi-starti)/step + 1);
 Tmax=nFrames;
 Itime=1;
 nTime = Tmax-Itime+1;
@@ -38,18 +38,28 @@ Create_Grid_pol_Torino_cm
 % programm SpectralAnalysis_FB. Spectral Analysis and PV Monotonization
 % have then to be run separately.
 %--------------------------------------------------------------------------
+%                               ->>> Spectral Analysis in Polar coordinate
+%--------------------------------------------------------------------------
+% SpectralAnalysis_FB
+% 
+% SpectralAnalysis_Plots
 
-% ->>> Spectral Analysis in Polar coordinate
-%SpectralAnalysis_FB
+%--------------------------------------------------------------------------
+%                           ->>> Spectral Analysis in Cartesian coordinate
+%--------------------------------------------------------------------------
+% SpectralAnalysis_FF
+%   
+% SpectralAnalysis_FF_Plots
 
-%SpectralAnalysis_Plots
-
-% ->>> Spectral Analysis in Cartesian coordinate
-SpectralAnalysis_FF
-
-SpectralAnalysis_FF_Plots
-
-% ->>> PV Monotonization
+%--------------------------------------------------------------------------
+%                                                   ->>> PV Monotonization
+%--------------------------------------------------------------------------
 %DerivateVorticita
-
 % PV_mono
+
+%--------------------------------------------------------------------------
+%                                                              ->>> Efluxes
+%--------------------------------------------------------------------------
+EFluxes_Spectral
+
+% EFluxes_Spectral_plots
