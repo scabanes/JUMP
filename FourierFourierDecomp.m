@@ -45,11 +45,19 @@ Nky=ceil((Ny+1)/2);
 % vecteur des modes kx
 kx = zeros(Nx,1);
 kx(1:Nkx) = [1:Nkx]-1;
+if(mod(Nx,2)==0) % even
 kx(Nkx+1:Nx)=-(Nkx-2:-1:1);
+else % odd
+kx(Nkx+1:Nx)=-(Nkx-1:-1:1);
+end
 % vecteur des modes ky
 ky = zeros(1,Ny);
 ky(1,1:Nky) = [1:Nky]-1;
+if(mod(Ny,2)==0) % even
 ky(1,Nky+1:Ny)=-(Nky-2:-1:1);
+else % odd
+ky(1,Nky+1:Ny)=-(Nky-1:-1:1);
+end
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                               Energy:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

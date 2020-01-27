@@ -172,9 +172,9 @@ for t = 1:t_max
 end
 FF = FlussoEnergia_time_l(:);
 HH = FlussoEnstrofia_time_l(:);
-% figure; hold on
-% plot(Vl.*gridtocm, squeeze(mean(FlussoEnergia_time_l)))
-% plot(Vl.*gridtocm, squeeze(mean(FlussoEnstrofia_time_l)))
+figure; hold on
+plot(Vl.*gridtocm, squeeze(mean(FlussoEnergia_time_l)))
+plot(Vl.*gridtocm, squeeze(mean(FlussoEnstrofia_time_l)))
 
 %% ###########################################################################################################################
 %  ###########################################################################################################################
