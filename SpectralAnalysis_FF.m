@@ -2,45 +2,49 @@
 % # Set PDS parameters...
 % # 'Vtheta_tot' and 'Vr_tot' the 2D velocity fields of azimuthal and
 %    radial velocity of size (Nti*Nri,time).
-% # Nri and Nti radial and azumuthal point numbers before truncation.
+% # Nri and Nti radial and azimuthal point numbers before truncation.
 % # Ntmin and Ntmax are truncated azimuthal indices.
 % # Nrmin and Nrmax are truncated radial indices.
+% # x and y are cartesian coordinates
+% # r and theta are polar coordinates
 
 %% OUTPUTS:
-% # Nr and Nt radial and azumuthal point numbers after truncation.
-% # R_trunc, the maximum radius after truncation.
-% # EZn, energy in the axisymmetric mode as a function of radial modes n
-%   and time.
-% # ERn, energy in the residual as a function of radial modes n and time.
-% # Norm_mn, the normalisation matrice that help to choose Nrk.
-% # error_fit, is the RMS of the difference between the velocity field
-%   input and the one obtains from Bessel Fourier projection from
-%   coefficients Cmn_U and Cmn_V.
+% # E_ky_t and E_ky_t are kinetic energy along the wavenumbers ky and kx as 
+%   a function of time t. They are matrices of E_ky_t(Nky,t) and E_kx_t(Nkx,t)
+% # Nkx and Nky, are the number of modes in x and y
+% # kx and ky, are non-dimantional modes that leads to wavenumbers in m-1
+%   following 2*pi*kx/Lx, with Lx is the domain's length in x and in meter.
+%   Same for ky in y.
+
 % _________________________________________________________________________
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                                   LOAD:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Carichiamo input--------------------------
+% Here we load velocity fields:
 [Vtheta_tot,b]=loadmtx([roots,Name,NameVt]);
 [Vr_tot,b]=loadmtx([roots,Name,NameVr]);
+% Here we map the loaded fields:
 [returnOK] = Maps(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,GridR_2C,GridT_2C,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,1)
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                             TRUNCATION:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% We truncated the domain size if necessary.
 Grid_Xp_cm=Grid_Xp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
 Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
-% Locally cartesian grid see Read. 2015
+% Locally pseudo-cartesian grid see Read. 2015
 GridR_2C=GridR_2C(Ntmin:Ntmax,Nrmin:Nrmax);
 GridT_2C=GridT_2C(Ntmin:Ntmax,Nrmin:Nrmax);
 % -----------------------------------------------------Truncation
 theta = theta(1:length(Ntmin:Ntmax)); % Attenzione theta deve partire da zero..
-% !!!!!! Attention encore un doute
 r = r(Nrmin:Nrmax); % Attenzione theta deve partire da zero..
+% Here we choose a pseudo cartesian grid 
+x = Ro.*theta; 
+y = r;
 % R=r(end);
 % r = r(Nrmin:Nrmax); % Attenzione theta deve partire da zero..
 % !!!!!! -------------------------
-Nt = length(theta)
-Nr = length(r)
+% Nt = length(theta)
+% Nr = length(r)
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                     WINDOWING MATRICES:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -67,7 +71,7 @@ Vr = reshape(Vr_tot(:,it),Nti,Nri);
 % colorbar
 % end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%----------------- Truncation & mise en cm
+%----------------- Truncation of the velocity fields
 Vtheta=Vtheta(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
 Vr=Vr(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
 %----------------- Isnan = 0
@@ -78,11 +82,14 @@ Vr=Vr(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
 % colorbar
 % end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% if some data are missing in the velocity field we put a zero value
+% instead of a NaN.
 Vtheta(isnan(Vtheta))=0.;
 Vr(isnan(Vr))=0.;
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                              WINDOWING:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The windowing make the fields to be periodic. Not necessarly used.
 % if(windowing==1) 
 % % ------------------------Azimuthal windowing
 % Vtheta = Vtheta.*WA;
@@ -106,6 +113,8 @@ FourierFourierDecomp
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SAVE in Time
 iit = iit+1;
+% Total energy
+E_ky_t(:,iit) = E_ky;
 %  Zonostrophic formulation
 EZ_ky_t(:,iit) = EZ_ky;
 ER_ky_t(:,iit) = ER_ky;
@@ -167,6 +176,14 @@ IAA = (1/S).*0.5.*trapz(y,trapz(x,Vtheta.*Vtheta,1))
 %  ###########################################################################################################################
 %  ###########################################################################################################################
 if(ifsave==1)
+fileout1 = [roots,Name,'/E_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+filename1 = sprintf('%s.mtx',fileout1);
+fid = fopen(filename1,'wb');
+fwrite(fid,size(E_ky_t,1),'ulong');
+fwrite(fid,size(E_ky_t,2),'ulong');
+fwrite(fid,E_ky_t(:),'float');
+fclose(fid);
+%
 fileout1 = [roots,Name,'/EZ_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)];
 filename1 = sprintf('%s.mtx',fileout1);
 fid = fopen(filename1,'wb');

@@ -2,6 +2,7 @@ load([roots,Name,'/SpectralAnalysis_FF_infos.mat'])
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                              LOAD DATA:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[E_ky_t,a] = loadmtx([roots,Name,'/E_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)]);
 [EZ_ky_t,a] = loadmtx([roots,Name,'/EZ_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)]);
 [ER_ky_t,a] = loadmtx([roots,Name,'/ER_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)]);
 [E1_kx_t,a] = loadmtx([roots,Name,'/E1_kx_Fr_',num2str(nTime),'_window_',num2str(windowing)]);
@@ -11,16 +12,38 @@ load([roots,Name,'/SpectralAnalysis_FF_infos.mat'])
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                                SPECTRA:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Length of the domain
 Lx = x(end)-x(1); % en m
 Ly = y(end)-y(1); % en m
 dy = mean(y(2:end)-y(1:end-1));
-R=2.5;
+% Wavenumbers
 ky_m = (2*pi*ky(1:Nky))/Ly; % en m-1
 kx_m = (2*pi*kx(1:Nkx))/Lx; % en m-1
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                           Total Enegy:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% -------------------------------- plots spectra
+fig=figure; 
+hax=axes; 
+%
+loglog(ky_m,mean(E_ky_t,2),'k', 'Linewidth',3)
+% ylim([10.^(-10.) 10.^(-5.)])
+% xlim([0 Nky-1])
+box on
+xlabel('ky [cm^{-1}]','FontSize',13,'FontWeight','bold','Color','k')
+ylabel('E Total (cm^2.s^2)','FontSize',13,'FontWeight','bold','Color','k')
+scrsz = get(0,'ScreenSize');
+set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
+    'Color',[1 1 1],'PaperPositionMode','auto')
+set(gca,'FontSize',13,'FontWeight','bold')
+% title(['\epsilon = ',num2str(epsilon),' cm^2.s^{-3}', 'and \Omega = ',num2str(Omega),' rad/s'],'FontSize',11)
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                           Zonostrophy:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if(0==1)
 % les quantites theorique sont divisees par Ro pour passer des m^3 s-2 a
 % des m^2 s-2
 % -------------------------------- Theoretical spectra
@@ -46,18 +69,19 @@ loglog([0:Nky-1],mean(ER_ky_t,2),'k','LineWidth',2)
 % loglog([1:Nky-1],EQNSE_ky/Ro,'--r')
 loglog([1:Nky-1],EZ_Theo/Ro,'--r') % [E] = m^2 s-2
 loglog([1:Nky-1],ER_Theo/Ro,'--k') % [E] = m^2 s-2
+end
 
-close all
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                  QNSE:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if(0==1)
 % EQNSE_1 = (18/55)*Ck.*(epsilon.^(2./3.)).*kx(2:end).^(-5./3.); 
 % EQNSE_2 = 0.0926.*((2.*omega.*sin(pi/3)).^2.).*(kx(2:end)).^(-3.);
 % sur ky
 EQNSE_1 = 0.626*(epsilon.^(2./3.)).*ky_m(2:end).^(-5./3.); % [E] = m^3 s-2 
 EQNSE_2 = 0.24.*((2.*Omega/(2*pi)).^2.).*(ky_m(2:end)).^(-3.); % [E] = m^3 s-2
 EQNSE = EQNSE_1 + EQNSE_2;
-% -------------------------------- plots spectra zonostrophic formulation
+% -------------------------------- plots spectra 
 fig=figure; 
 hax=axes; 
 % loglog([0:Nkx-1],mean(E1_kx_t,2),'k')
@@ -80,59 +104,8 @@ set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
     'Color',[1 1 1],'PaperPositionMode','auto')
 set(gca,'FontSize',13,'FontWeight','bold')
 title(['\epsilon = ',num2str(epsilon),' m^2.s^{-3}', 'and \Omega = ',num2str(Omega),' rad/s'],'FontSize',11)
+end
 % 
 % disp(['#--> Here comes some quantities of ',Name,' :'])
 % disp(['epsilon = ',num2str(epsilon),' cm^2.s^{-3}'])
 % disp(['L_beta = ',num2str(L_beta)])
-
-
-
-
-
-% line([R/Lhat_beta(nhat) R/Lhat_beta(nhat)],get(hax,'YLim'),'Color',[0 0 0])
-% line([n_r n_r],get(hax,'YLim'),'Color',[0 0 0])
-% line([n_mag n_mag],get(hax,'YLim'),'Color',[0 0 0])
-% line([2*n_mag 2*n_mag],get(hax,'YLim'),'Color',[0 0 0])
-
-
-
-
-
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                          MODAL SPECTRA:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % % % Emn_mt = mean(reshape(Emn_t,Nt,Nrk,nTime),3);
-% % % % 
-% % % % % % -------------------------------- plots spectra
-% % % % fig=figure; 
-% % % % hax=axes; 
-% % % % % loglog(n,(ERn(:,1)),'k','LineWidth',2)
-% % % % loglog(n,(Emn_mt(1,:)),'-r','LineWidth',2) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % %
-% % % % hold on
-% % % % %
-% % % % loglog(n,(2.*Emn_mt(2,:)),'-o','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(3,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(4,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(5,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(6,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(7,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(8,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(9,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(10,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % loglog(n,(2.*Emn_mt(11,:)),'-','LineWidth',1) % I apply a factor 2, instead of doing the sum over m and -m
-% % % % legend('m=0','m = 1','m = 2','m = 3','m = 4','m = 5','m = 6','m = 7','m = 8','m = 9','m = 10')
-% % % % % loglog(n,EZ_Theo,'--r')
-% % % % % loglog(n,ER_Theo,'--k')
-% % % % ylim([10.^(-7.) 0.1])
-% % % % xlim([n(1) n(end)])
-% % % % line([n_mag n_mag],get(hax,'YLim'),'Color',[0 0 0])
-% % % % line([2*n_mag 2*n_mag],get(hax,'YLim'),'Color',[0 0 0])
-% % % % line([n_jets n_jets],get(hax,'YLim'),'Color',[0 0 0])
-% % % % box on
-% % % % scrsz = get(0,'ScreenSize');
-% % % % set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
-% % % %     'Color',[1 1 1],'PaperPositionMode','auto')
-% % % % set(gca,'FontSize',13,'FontWeight','bold')
-% % % % xlabel('n','FontSize',13,'FontWeight','bold','Color','k')
-% % % % ylabel('E','FontSize',13,'FontWeight','bold','Color','k')
