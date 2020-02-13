@@ -6,7 +6,7 @@ close all
 %---------------------------------------------
 %-------------- Nomenclature
 Name = 'ESP_6A_east_180'; %
-roots = '/media/simon/simon/JUMP-JetsInTheLab-Test/'; % Root path..
+roots = '/media/simon/simon/Campi/'; % Root path..
 %**********************************************************
 
 % #########################################################################
