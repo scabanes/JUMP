@@ -41,7 +41,7 @@ end
 % The spectral filtering is the product of the spectral field, obtains in 
 % the preceding spectral decomposition of the velocity field, with the
 % gaussian filter decomposed in the spectral space. To compute another
-% function than the gaussian propoed below one has to find its fourier
+% function than the gaussian proposed below one has to find its fourier
 % transform FT as in the exemple shown below and enter its expression for
 % TFG = .... and TFG_toNorm that differ by the terms (Mkx.*Nx).^2) + ((Mky.*Ny).^2). 
 % Here is the analytical expression of a guassian G and its fourier transform

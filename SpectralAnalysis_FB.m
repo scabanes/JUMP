@@ -96,14 +96,14 @@ Nr = length(r)
 WA = Windowing.WindowingTukey(Grid_Xp_cm,1); % Tukey function on the Azimuthal direction.
 WR = Windowing.WindowingTukey(Grid_Xp_cm,2); % Tukey function on the Radial direction.
 %%%%%%%%%%%%%%%%%%%%%%%ZEROS MATRICES
-EZn = zeros(Nrk,Tmax);
-ERn = zeros(Nrk,Tmax);
-Emn_t = zeros(Nrk*Nt,Tmax);
+EZn = zeros(Nrk,nTime);%Tmax);
+ERn = zeros(Nrk,nTime);%Tmax);
+Emn_t = zeros(Nrk*Nt,nTime);%Tmax);
 %  ###########################################################################################################################
 %  ##################################################### Time Loop ###########################################################
 %  ###########################################################################################################################
 iit=0;
-for it=1:Tmax
+for it=Itime:Tmax
 % it=Tmax;
      disp(['step = ',num2str(it),' on ',num2str(Tmax)])
 %----------------- Reshape
@@ -119,6 +119,7 @@ Vr = reshape(Vr_tot(:,it),Nti,Nri);
 %----------------- Truncation & mise en cm
 Vtheta=Vtheta(Ntmin:Ntmax,Nrmin:Nrmax).*Tocm;
 Vr=Vr(Ntmin:Ntmax,Nrmin:Nrmax).*Tocm;
+URMS(it) = rms(rms(Vtheta + Vr));
 %----------------- Isnan = 0
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % if(0==0)
@@ -324,7 +325,7 @@ disp('Energy = '), disp(num2str(IA))
 %  ###########################################################################################################################
 %  ###########################################################################################################################
 if(ifsave==1)
-fileout1 = [roots,Name,'/Ezn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+fileout1 = [roots,Name,'/Ezn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_Itime_',num2str(Itime)];
 filename1 = sprintf('%s.mtx',fileout1);
 fid = fopen(filename1,'wb');
 fwrite(fid,size(EZn,1),'ulong');
@@ -332,7 +333,7 @@ fwrite(fid,size(EZn,2),'ulong');
 fwrite(fid,EZn(:),'float');
 fclose(fid);
 % % % 
-fileout2 = [roots,Name,'/ERn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+fileout2 = [roots,Name,'/ERn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_Itime_',num2str(Itime)];
 filename2 = sprintf('%s.mtx',fileout2);
 fid = fopen(filename2,'wb');
 fwrite(fid,size(ERn,1),'ulong');
@@ -340,7 +341,7 @@ fwrite(fid,size(ERn,2),'ulong');
 fwrite(fid,ERn(:),'float');
 fclose(fid);
 % % % 
-fileout2 = [roots,Name,'/Emn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+fileout2 = [roots,Name,'/Emn_nbm',num2str(M),'_nbn',num2str(Nrk),'_Fr_',num2str(nTime),'_Itime_',num2str(Itime)];
 filename2 = sprintf('%s.mtx',fileout2);
 fid = fopen(filename2,'wb');
 fwrite(fid,size(Emn_t,1),'ulong');
