@@ -39,6 +39,8 @@
 [Pvpolrm,b]=loadmtx([roots,Name,'/VortPot_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
 % [PvRelat,b]=loadmtx([roots,Name,'/VortRelat_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
 [Vz,b] = loadmtx([roots,Name,NameVt]);
+% this is in the case of Saturn observations from Arrate
+% % % Vz = Pvpolrm.*0;
 % ##################################################################################################################################################
 %                                                                                                                                   NUMERO DEI DATI:
 % ##################################################################################################################################################
@@ -92,17 +94,20 @@ Vz_zmt = zeros(Nri,nTime);
 %
 dVortPot_zm_dr = nan(Nri,1);
 dVortPot_zmt_dr= zeros(Nri,nTime);
-
+%
+ML = [];
+ML_t = [];
 % ##################################################################################################################################################
 %                                                                                                                                   LOOP SUL TEMPO:
 % ##################################################################################################################################################
 iit=0;
-for it=Itime:Tmax
-disp(it)
+for t=Itime:Tmax
+disp(t)
+iit=iit+1;
 %--------------------------------------------------------------------------
 % ------------- Reshape
-pvPolr=reshape(Pvpolrm(:,it),Nti,Nri);
-Vz_t=reshape(Vz(:,it),Nti,Nri);
+pvPolr=reshape(Pvpolrm(:,iit),Nti,Nri);
+Vz_t=reshape(Vz(:,iit),Nti,Nri);
 %--------------------------------------------------------------------------
 % ------------- Taglio sui punti
 % Togliamo i punti con pocchi dati schelto in PtDaTogliere;
@@ -116,6 +121,7 @@ Vz_t(PtDaTogliereT,:) = nan;
 a=size(pvPolr);
 LL_m = zeros(a(1),1);
 Mono_rp = zeros(a);
+is=0;
     for iphi=1:Nti%----------------------------------------------------------------------Loop on theta
         %--------------------------------------------------------------------------
         % ------------- Sorting instantaneoous of PV with nonan.
@@ -123,10 +129,16 @@ Mono_rp = zeros(a);
         pvPolr_NoNan = pvPolr(iphi,aa)';
     
         unsortI = reshape(1:length(pvPolr_NoNan),size(pvPolr_NoNan));%,size(X_NoNan);
-        %[Mono,sortI] = sort(X_NoNan,1,'ascend');
-        [Mono,sortI] = sort(pvPolr_NoNan,1,'descend');
- 
+        % sorting need to be ascend or descend
+%         [Mono,sortI] = sort(pvPolr_NoNan,1,'descend');
+%         [Mono,sortI] = sort(pvPolr_NoNan,1,'ascend');
+          [Mono,sortI] = sort(pvPolr_NoNan,1,SortingDirection);
+      
         L = (unsortI-sortI).*dr;
+% % % %         if isempty(L)==0
+% % % %             is = is+1;
+% % % %             ML(:,is) = L;
+% % % %         end
         L_m = squeeze((sum(L.^2)./sum((L~=0))).^0.5);
         %--------------------------------------------------------------------------
         % ------------- Save Monotonized prf in a Martix. Non-used.
@@ -195,7 +207,7 @@ Mono_rp = zeros(a);
 % % % %     Mono_rp_pm_SNan = Mono_rp_pm(ff);
 % % % %     Mono_rp_zm(iR) = mean(Mono_rp_pm_SNan);
 % % % % end
-iit=iit+1;
+% iit=iit+1;
 %--------------------------------------------------------------------------
 % ------------- For PI
 Lm_t(:,iit) = LL_m;
@@ -209,6 +221,8 @@ VortPot_zmt(:,iit) = VortPot_zm;
 Vz_zmt(:,iit) = Vz_zm;
 % Derivata della vorticita e media zonale
 dVortPot_zmt_dr(:,iit) = dVortPot_zm_dr;
+% ------------- Full Matrice
+ML_t(:,iit) = ML(:);
 
 % % % % Mono_rpt_zm(:,it) = Mono_rp_zm;
 end
@@ -250,28 +264,56 @@ pcolor(Grid_Xp_cm,Grid_Yp_cm,pvPolr); shading interp
 % criterio che taglia i profili radiali troppo corti per avere la
 % risoluzione della scala di Thorpe, i.e. ai bordi angolari della
 % camera.
-criterio = 30;
+criterio = 10;
 disp('Attenzione la scala di Thorpe deve essere al massimo la meta di:')
 disp(num2str(dr*criterio))
 % Media temporale e seleziona un settore definito 
 % dove ci sono meno dati del criterio
-Ndata_mt=mean(Ndata_raggio_t');
+Ndata_mt=mean(Ndata_raggio_t',1);
 for idxphi=1:Nti
 %    if(idxphi >= idxCmin & idxphi <= idxCmax)
-    if(Ndata_mt(idxphi) >= criterio)
+    if(Ndata_mt(idxphi) >= criterio);
         sss=~isnan(Lm_t(idxphi,:));
         Lm_mt(idxphi) = mean(Lm_t(idxphi,sss)');
+        Lm_rmst(idxphi) = rms(Lm_t(idxphi,sss)');
     else
         Lm_mt(idxphi) = NaN;
+        Lm_rmst(idxphi) = NaN;
     end
 end
 % Media sull settore
 ddd=~isnan(Lm_mt);
 Lm_mtzm = mean(Lm_mt(ddd));
+Lm_rmstzm = rms(Lm_rmst(ddd));
+% Lm_stdtzm = std(Lm_rmst(ddd));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%        THORPE SCALE
 disp('scala di Thorpe I - Full instantaneous (used):')
-disp(num2str(Lm_mtzm))
+disp(['mean1: ',num2str(Lm_mtzm)])
+disp(['rms1: ',num2str(Lm_rmstzm)])
+% disp(['std1: ',num2str(Lm_stdtzm)])
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% figure; hold on
+% histogram(abs(ML_t(ML_t~=0)),'Normalization','probability');
+% title('L_M')
+%
+fig=figure; 
+hax=axes; 
+hold on 
+hist(abs(ML(ML~=0)),25);
+h = findobj(gca,'Type','patch');
+h.EdgeColor = 'w';
+line([rms(abs(ML_t(ML_t~=0))) rms(abs(ML_t(ML_t~=0)))],get(hax,'YLim'),'Color','r');
+line([mean(abs(ML_t(ML_t~=0))) mean(abs(ML_t(ML_t~=0)))],get(hax,'YLim'),'Color','g');
+line([std(abs(ML_t(ML_t~=0))) std(abs(ML_t(ML_t~=0)))],get(hax,'YLim'),'Color','k');
+line([median(abs(ML_t(ML_t~=0))) median(abs(ML_t(ML_t~=0)))],get(hax,'YLim'),'Color','c');
+legend('hist','rms','mean','std','median')
+title('L_M')
+
+disp('------------------- Letter 2020')
+disp(['mean: ',num2str(mean(abs(ML_t(ML_t~=0))))])
+disp(['rms: ',num2str(rms(abs(ML_t(ML_t~=0))))])
+disp(['std: ',num2str(std(abs(ML_t(ML_t~=0))))])
 
 
 %% ###########################################################################################################################
@@ -279,11 +321,12 @@ disp(num2str(Lm_mtzm))
 %                                                  PLOTS
 %  ###########################################################################################################################
 %  ###########################################################################################################################
+if(0==0)
 % #################################################################################################################
 %                                                                                                   Letter's Plots:
 % #################################################################################################################
 % We set plots to write a letter
-iitt = 81; % 90 % choose a time to plot here
+iitt = 1;%flipped:70%Esp:96%81; % 90 % choose a time to plot here
 Hmean = 4 ; % hauteur moyenne de fluide, 4 cm.
 % #########################################################################
 %                                                                       PV:
@@ -294,24 +337,29 @@ Hmean = 4 ; % hauteur moyenne de fluide, 4 cm.
 figure
 scrsz = get(0,'ScreenSize');
 set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
-   'Color',[1 1 1],'PaperPositionMode','auto')
+   'Color',[1 1 1],'PaperPositionMode','auto');
 
 axes('FontSize',18,'Linewidth',2,'FontName','times',...
      'TickLength',[0.01; 0.03],...%'Xdir','reverse',...
-     'Position',[0.13 0.17 0.82 0.75])   
+     'Position',[0.13 0.17 0.82 0.75])   ;
 hold on
-subplot ('Position',[0.13 0.17 0.82 0.75]) 
+subplot ('Position',[0.13 0.17 0.82 0.75]) ;
 hold on
 %__________________________________________________________________________
 %----------------------------------Plot QGPV
-
+ilon = 50
 %-----------------------PLOTS instantaneous non-averaged data
 pvPolr=reshape(Pvpolrm(:,iitt),Nti,Nri);
-plot(pvPolr(260,:)/(Omega/Hmean),r,'-k','linewidth',2.)
-plot(Mono_rpt(260,:,iitt)/(Omega/Hmean),r,'-r','linewidth',1.)
+% plot(pvPolr(ilon,:)/(Omega/Hmean),r,'-k','linewidth',2.)
+% plot(Mono_rpt(ilon,:,iitt)/(Omega/Hmean),r,'-r','linewidth',1.)
+%
+% plot(pvPolr(ilon,1:Nri-90),r(1:Nri-90),'.k','linewidth',2.)
+plot(pvPolr(ilon,:),r,'-k','linewidth',2.)
+plot(Mono_rpt(ilon,:,iitt),r,'-r','linewidth',1.)
 box on
 % ylim ([11 27])
-ylim ([9 27])
+ylim ([10 35])
+% % % % ylim ([9 27])
 
 
 % #########################################################################
@@ -323,13 +371,13 @@ ylim ([9 27])
 figure
 scrsz = get(0,'ScreenSize');
 set(gcf,'Position',[0 scrsz(4)/3 scrsz(3)/2.7 scrsz(4)/2.5],...
-   'Color',[1 1 1],'PaperPositionMode','auto')
+   'Color',[1 1 1],'PaperPositionMode','auto');
 
 axes('FontSize',18,'Linewidth',2,'FontName','times',...
      'TickLength',[0.01; 0.03],...%'Xdir','reverse',...
-     'Position',[0.13 0.17 0.82 0.75])   
+     'Position',[0.13 0.17 0.82 0.75]);
 hold on
-subplot ('Position',[0.13 0.17 0.82 0.75]) 
+subplot ('Position',[0.13 0.17 0.82 0.75]) ;
 hold on
 %__________________________________________________________________________
 %----------------------------------Plot QGPV
@@ -338,7 +386,8 @@ hold on
 plot(Vz_zmt(:,iitt),r,'-k','linewidth',2.)
 box on
 % ylim ([11 27])
-ylim ([9 27])
+ylim ([10 35])
+% % % % % ylim ([9 27])
 
 % #################################################################################################################
 %                                                                                                    Letter's Maps:
@@ -353,12 +402,12 @@ addpath('/home/simon/Bureau/Esperimento-DICEA/JUMP/Altre-funzioni/cbrewer')
 %
 [PvRelat,b]=loadmtx([roots,Name,'/VortRelat_time_',num2str(Nti),'_',num2str(Nri),'_',num2str(nTime)]);
 pvPolr=reshape(PvRelat(:,iitt),Nti,Nri);
-fig=figure
+fig=figure;
 pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),pvPolr(Ntmin:Ntmax,:)); shading interp
 % contourf(GridR(180:end,:),GridT(180:end,:),pvPolr(180:end,:),50)
-colormap(cbrewer('div', 'RdBu', 30))
-colorbar
-mycmap = get(fig,'Colormap')
+colormap(cbrewer('div', 'RdBu', 30));
+colorbar;
+mycmap = get(fig,'Colormap');
 set(fig,'Colormap',flipud(mycmap))
 caxis([-3 3]);
 title('Potential vorticity')
@@ -371,26 +420,26 @@ title('Potential vorticity')
 % --------- zonal velocity
 [Vtheta_tot,b]=loadmtx([roots,Name,NameVt]);
 Vtheta=reshape(Vtheta_tot(:,iitt),Nti,Nri);
-fig=figure
-pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),Vtheta(Ntmin:Ntmax,:)); shading interp
+fig=figure;
+pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),Vtheta(Ntmin:Ntmax,:)); shading interp;
 % contourf(GridR(180:end,:),GridT(180:end,:),pvPolr(180:end,:),50)
-colormap(cbrewer('div', 'RdBu', 30))
-colorbar
-mycmap = get(fig,'Colormap')
-set(fig,'Colormap',flipud(mycmap))
+colormap(cbrewer('div', 'RdBu', 30));
+colorbar;
+mycmap = get(fig,'Colormap');
+set(fig,'Colormap',flipud(mycmap));
 caxis([-3 3]);
 title('Zonal velocity')
 
 % --------- radial velocity
 [Vr_tot,b]=loadmtx([roots,Name,NameVr]);
 Vr=reshape(Vr_tot(:,iitt),Nti,Nri);
-fig=figure
-pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),Vr(Ntmin:Ntmax,:)); shading interp
+fig=figure;
+pcolor(GridR(Ntmin:Ntmax,:).*cmpx,GridT(Ntmin:Ntmax,:),Vr(Ntmin:Ntmax,:)); shading interp;
 % contourf(GridR(180:end,:),GridT(180:end,:),pvPolr(180:end,:),50)
-colormap(cbrewer('div', 'RdBu', 30))
-colorbar
-mycmap = get(fig,'Colormap')
-set(fig,'Colormap',flipud(mycmap))
+colormap(cbrewer('div', 'RdBu', 30));
+colorbar;
+mycmap = get(fig,'Colormap');
+set(fig,'Colormap',flipud(mycmap));
 caxis([-1 1]);
 title('radial velocity')
 % #################################################################################################################
@@ -406,9 +455,9 @@ ax1 = axes('FontSize',18,'Linewidth',2,'FontName','times',...
 %_________________________________________________________________________
 %----------------------------------Plot QGPV
 pvPolr=reshape(Pvpolrm(:,iitt),Nti,Nri);
-line(pvPolr(260,:).*Hmean,r,'Color','k','Linewidth',2.5)
+line(pvPolr(10,:).*Hmean/Omega,r,'Color','k','Linewidth',2.5)
 %----------------------------------Plot sorted QGPV
-line(Mono_rpt(260,:,iitt).*Hmean,r,'Color','r','Linewidth',1.5)
+line(Mono_rpt(10,:,iitt).*Hmean/Omega,r,'Color','r','Linewidth',1.5)
 % ax1 = gca; % current axes
 ax1.XColor = 'k';
 ax1.YColor = 'k';
@@ -416,8 +465,8 @@ ax1.YColor = 'k';
 ax1_pos = ax1.Position; % position of first axes
 % ylim ([10 25])
 % xlim ([5 25])
-ylim ([10 23])
-xlim ([7 25])
+% % % % % % ylim ([10 23])
+% xlim ([7 25])
 %_________________________________________________________________________
 %----------------------------------Plot Zonal velocity
 ax2 = axes('Position',ax1_pos,...
@@ -425,19 +474,24 @@ ax2 = axes('Position',ax1_pos,...
     'YAxisLocation','right',...
     'Color','none','FontSize',18,'Linewidth',2,'FontName','times',...
      'TickLength',[0.01; 0.03]);
-line(Vz_zmt(:,iitt)./cmtom,r,'Parent',ax2,'Color','k','Linewidth',2.5)
+line(Vz_zmt(:,iitt),r,'Parent',ax2,'Color','k','Linewidth',2.5)
 ax2.XColor = 'k';
 ax2.YColor = 'k';
 
 % ylim ([10 25])
 % xlim ([-2 3.6]./cmtom)
 ylim ([10 23])
-xlim ([-2 0.5]./cmtom)
+% xlim ([-2 0.5]./cmtom)
 title('Pv in s^{-1} and Vz en m s^{-1}')
+end
 %% ###########################################################################################################################
 %  ###########################################################################################################################
 %  ###########################################################################################################################
 %  ###########################################################################################################################
+
+
+
+
 
 
 
