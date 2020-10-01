@@ -27,17 +27,32 @@
 % idxmax = 189;
 % idymin = 50;
 % idymax = 199;
-% Cartesien Nx=Ny=221
-% % % % idxmin = 1;
-% % % % idxmax = 221;
-% % % % idymin = 26;
-% % % % idymax = 246;
 %---------------------------------------------
 % Here I used Roland's interpolation through the data merged.civ2. The
 % following gapt allow to load data in time.
 % % % % gapt = 30;
 criterionNaN = 20; % UNSUED -- window on which the mean to replace Nan is calculated
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %---------------------------------------------
+% % % % % % % % % % % % % % % % % % % % % % % % % ---------------------------------------------------- for pseudo-cartesian Torino
+% % % % % % % % % % % % % % % % % % % % % % % % if(1==0)
+% % % % % % % % % % % % % % % % % % % % % % % % % Here we load velocity fields:
+% % % % % % % % % % % % % % % % % % % % % % % % [Vtheta_tot,b]=loadmtx([roots,Name,NameVt]);
+% % % % % % % % % % % % % % % % % % % % % % % % [Vr_tot,b]=loadmtx([roots,Name,NameVr]);
+% % % % % % % % % % % % % % % % % % % % % % % % [curl_tot,b]=loadmtx([roots,'EXPT03','/VortRelat_time_540_180_1105']);
+% % % % % % % % % % % % % % % % % % % % % % % % % Here we map the loaded fields:
+% % % % % % % % % % % % % % % % % % % % % % % % [returnOK] = Maps(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,GridR_2C,GridT_2C,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,1)
+% % % % % % % % % % % % % % % % % % % % % % % % % We truncated the domain size if necessary.
+% % % % % % % % % % % % % % % % % % % % % % % % Grid_Xp_cm=Grid_Xp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
+% % % % % % % % % % % % % % % % % % % % % % % % Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
+% % % % % % % % % % % % % % % % % % % % % % % % % Locally pseudo-cartesian grid see Read. 2015
+% % % % % % % % % % % % % % % % % % % % % % % % GridR_2C=GridR_2C(Ntmin:Ntmax,Nrmin:Nrmax);
+% % % % % % % % % % % % % % % % % % % % % % % % GridT_2C=GridT_2C(Ntmin:Ntmax,Nrmin:Nrmax);
+% % % % % % % % % % % % % % % % % % % % % % % % % -----------------------------------------------------Truncation
+% % % % % % % % % % % % % % % % % % % % % % % % end
+% % % % % % % % % % % % % % % % % % % % % % % % % ---------------------------------------------------- for pseudo-cartesian Torino
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                             Notes 
 %                               &
@@ -54,36 +69,99 @@ criterionNaN = 20; % UNSUED -- window on which the mean to replace Nan is calcul
 % those outermost region. Consequently, in non periodic field, as it is the
 % case for Torino data, we have to average the fluxes in the innermost par
 % of the domain and cut out the edge. I see no other solution for that.
-Flusso_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),nFrames,length(vl));
-Flusso_Enstro_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),nFrames,length(vl));
+% Flusso_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),nFrames,length(vl));
+Flusso_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),[],length(vl));
+Flusso_Enstro_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),[],length(vl));
 % ##################################################################################################################################################
 %                                                                                                                                   INTERPOLAZIONE :
 % ##################################################################################################################################################
-iit=0;
-for t=1:nFrames
-    t
-% file to load    
-file = [roots,Name,'/merged.civ2/fig_',num2str(numt),'.nc'];
-% compter les images
-numt = numt+gapt;
-% Velocity fields of cartesian velocities
-UU = double(ncread(file,'U'));
-VV = double(ncread(file,'V'));
-curl = double(ncread(file,'curl'));
-% regular cartesian coordinates
-xx = double(ncread(file,'coord_x'));
-yy = double(ncread(file,'coord_y'));
+it=0;
+for t=Itime:Tmax %---------------------------------------------------------------------------Init: LOOP on t
+    
+% % % % % % % % if(0==0)%------------------------------------------------------- Cas Torino
+% file to load 
+% file = [roots,Name,'/merged.civ2/fig_',num2str(numt),'.nc'];
+% if isfile(file)
+%      numt = numt+gapt;% File exists.
+% % compter les images
+% % Velocity fields of cartesian velocities
+% UU = double(ncread(file,'U'));
+% VV = double(ncread(file,'V'));
+% curl = double(ncread(file,'curl'));
+% % regular cartesian coordinates
+% xx = double(ncread(file,'coord_x'));
+% yy = double(ncread(file,'coord_y'));
+% 
+% x = xx(idxmin:idxmax);
+% y = yy(idymin:idymax);
+% % % % % % % % % % % % % % % %----------------------------------------------for pseudo-cartesian Torino
+% % % % % % % % % % % % % % % % % % % % % % % % % % UU = reshape(Vtheta_tot(:,t),Nti,Nri);
+% % % % % % % % % % % % % % % % % % % % % % % % % % VV = reshape(Vr_tot(:,t),Nti,Nri);
+% % % % % % % % % % % % % % % % % % % % % % % % % % curl = reshape(curl_tot(:,t),Nti,Nri);
+% % % % % % % % % % % % % % % % % % % % % % % % % % %----------------- Truncation of the velocity fields
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % U=UU(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % V=VV(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % vort=curlL(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
+% % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % % % % % % % % % % % % % % % % % % % % % % % % % theta_tc = theta(1:length(idymin:idymax)); % Attenzione theta deve partire da zero..
+% % % % % % % % % % % % % % % % % % % % % % % % % % r_tc = r(idxmin:idxmax); % Attenzione theta deve partire da zero..
+% % % % % % % % % % % % % % % % % % % % % % % % % % % Here we choose a pseudo cartesian grid 
+% % % % % % % % % % % % % % % % % % % % % % % % % % xx = Ro.*theta; 
+% % % % % % % % % % % % % % % % % % % % % % % % % % yy = r;
+% % % % % % % % % % % % % % % % % % % % % % % % % % x = Ro.*theta_tc;
+% % % % % % % % % % % % % % % % % % % % % % % % % % y = r_tc;
+% % % % % % % % % % % % % % % %--------------------------------------------for pseudo-cartesian Torino
+% 
+% Nx = length(x);
+% Ny = length(y);
+% dx=mean(x(2:end)-x(1:end-1));
+% dy=mean(y(2:end)-y(1:end-1));
+% Lx = x(end)-x(1); % en m
+% Ly = y(end)-y(1); % en m
+% % Recreat the mesh grid
+% [XX,YY] = meshgrid(xx,yy);
+
+% % % % % % % % % % elseif(1==0)%------------------------------------------------------- Cas Obs Jupiter
+% % % % % % % % % % % file to load    
+% % % % % % % % % % file = [roots,Name,'StatisticalData.nc'];
+% % % % % % % % % % % Velocity fields of cartesian velocities
+% % % % % % % % % % UUL = double(ncread(file,'wm')); %wm(lat,long,z,time)
+% % % % % % % % % % VVL = double(ncread(file,'vm')); %vm(lat,long,z,time)
+% % % % % % % % % % curlL = double(ncread(file,'vort')); %vort(lat,long,z,time)
+% % % % % % % % % % % single time
+% % % % % % % % % % UU = UUL(:,:,1,t);
+% % % % % % % % % % VV = VVL(:,:,1,t);
+% % % % % % % % % % curl = curlL(:,:,1,t);
+% % % % % % % % % % %
+% % % % % % % % % % SU=size(UU);
+% % % % % % % % % % % regular cartesian coordinates
+% % % % % % % % % % xx=[1:(2.*pi.*R_Jup)./SU(2):2.*pi.*R_Jup];
+% % % % % % % % % % yy=[1:(pi.*R_Jup)./SU(1):pi.*R_Jup];
+% % % % % % % % % % %
+% % % % % % % % % % x = xx(idxmin:idxmax);
+% % % % % % % % % % y = yy(idymin:idymax);
+% % % % % % % % % % Nx = length(x);
+% % % % % % % % % % Ny = length(y);
+% % % % % % % % % % dx=mean(x(2:end)-x(1:end-1));
+% % % % % % % % % % dy=mean(y(2:end)-y(1:end-1));
+% % % % % % % % % % Lx = x(end)-x(1); % en m
+% % % % % % % % % % Ly = y(end)-y(1); % en m
+% % % % % % % % % % % Recreat the mesh grid
+% % % % % % % % % % [XX,YY] = meshgrid(xx,yy);
+% % % % % % % % % % 
+% % % % % % % % % % 
+% % % % % % % % % % else%------------------------------------------------------- Cas Vasca
+[UUL,b]=loadmtx([roots,Name,NameU]); % It has to be checked, but this is Uy
+[VVL,b]=loadmtx([roots,Name,NameV]); % It has to be checked, but this is Uy
+[curlL,b]=loadmtx([roots,Name,NameVort]);
+% We work on a squared cartesian grid. nodi is the length of it. 
+nodi = b(1)^0.5;
+[XX,YY]=Create_Grid_cart_Vasca('C',[nodi,nodi,-r_max_cm,r_max_cm,-r_max_cm,r_max_cm]);
 %
-x = xx(idxmin:idxmax);
-y = yy(idymin:idymax);
-Nx = length(x);
-Ny = length(y);
-dx=mean(x(2:end)-x(1:end-1));
-dy=mean(y(2:end)-y(1:end-1));
-Lx = x(end)-x(1); % en m
-Ly = y(end)-y(1); % en m
-% Recreat the mesh grid
-[XX,YY] = meshgrid(xx,yy);
+UU = reshape(UUL(:,t),nodi,nodi);
+VV = reshape(VVL(:,t),nodi,nodi);
+curl = reshape(curlL(:,t),nodi,nodi);
+% % % % % % % % % % end
 
 % Cut to a rectangular table
 U = UU(idymin:idymax,idxmin:idxmax);
@@ -91,28 +169,42 @@ V = VV(idymin:idymax,idxmin:idxmax);
 vort = curl(idymin:idymax,idxmin:idxmax);
 X = XX(idymin:idymax,idxmin:idxmax);
 Y = YY(idymin:idymax,idxmin:idxmax);
+clear VV curl
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                                                    NAN VALUES:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+it = it + 1;
+% count Nan
+NbNan_U(it)=length(find(isnan(U)==1));
+% NbNan_V(t)=length(find(isnan(V)==1));
+% NbNan_Vort(t)=length(find(isnan(vort)==1));
 % Fill in the Nans in the table with 0 values
 U(isnan(U))=0.;
 V(isnan(V))=0.;
 vort(isnan(vort))=0.;
-% U = fillmissing(U,'movmedian',criterionNaN);  
-% V = fillmissing(V,'movmedian',criterionNaN);  
-% vort = fillmissing(vort,'movmedian',criterionNaN);
-if(0==1)
- figure
- contourf(X,Y,U, 100, 'LineStyle','none');
- colorbar
- size(U)
-end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                                 Field spectral decomposition:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is related to the saving of the fluxes at the end of the loops
+% If toot much Nan values
+% if(NbNan_U(t)>NbMaxNan)  %---------------------------------------------------------------------------Init: Condition on Nan
+% it = it;
+% disp(['Save frame ',num2str(it),' on frames ',num2str(t)])
+% disp('Too much Nan values')
+% else
+disp(['Save frame ',num2str(it),' on frames ',num2str(t)])
+% if(1==0)
+%  figure
+%  contourf(X,Y,U, 100, 'LineStyle','none');
+%  colorbar
+%  size(U)
+% end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        Field spectral decomposition:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                          FOURIER DECOMPOSITION for U:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        FOURIER DECOMPOSITION for U:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % la fft deve essere normalisata per il numero di punti in azimuth che corrisponde
 % al numero dei modi Nm che escono della fft. Tra questi Nm modi ci sono M modi
 % zonali m che corrisponde al numero dei punti unici simetrici per M ne l vettore _fft.
@@ -158,7 +250,7 @@ for iky_p=0:Nky-1 % que les ky positifs
 end
 if(0==1)
 figure
-loglog(kx(1:Nkx).*2.*pi./Nx,E(10,1:Nkx))
+loglog(kx(1:Nkx).*2.*pi./Nx,diag(E(1:Nky,1:Nkx)))
 hold on
 end
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -182,6 +274,7 @@ end
 %!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                                            LOOP on length l:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set some matrix to zero
@@ -196,7 +289,7 @@ DVort_Dx = zeros (Ny,Nx);
 DVort_Dy = zeros (Ny,Nx);
 % s count the interation on l.
 s=0;
-for idl=1:length(vl)
+for idl=1:length(vl) %---------------------------------------------------------------------------Init: LOOP on l
 l=vl(idl);
 s = s+1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,8 +319,8 @@ if(FSpatial==1) % set to 0 to have spatial filter and 1 to have spectral filter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [u_fil,v_fil,E_fil,Spakx,Spaky,SpaNkx,SpaNky] = func_Spatial_GaussianFilter(l,Nx,Ny,U,V,gaussian);
 % if(0==1)
-% loglog(kx(1:SpaNkx).*2.*pi./Nx,E_fil(10,1:SpaNkx),'--k')
-% xline(2.*pi/l);
+% % loglog(kx(1:SpaNkx).*2.*pi./Nx,E_fil(10,1:SpaNkx),'--k')
+% % xline(2.*pi/l);
 % end
 [uu_fil,vv_fil,EE_fil,Spakx,Spaky,SpaNkx,SpaNky] = func_Spatial_GaussianFilter(l,Nx,Ny,U.*U,V.*V,gaussian); % U*U(y,x)
 [vu_fil,uv_fil,ee_fil,Spakx,Spaky,SpaNkx,SpaNky] = func_Spatial_GaussianFilter(l,Nx,Ny,V.*U,U.*V,gaussian); % U*V(y,x)
@@ -238,9 +331,20 @@ if(FSpatial==1) % set to 0 to have spatial filter and 1 to have spectral filter
 %                                              Spectral Filter:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 else
+        if(l==1) % No filter for l=grid=1
+            u_fil = U;
+            v_fil = V;
+            uu_fil = U.*U;
+            vv_fil = V.*V;
+            vu_fil =  V.*U;
+            uv_fil = U.*V ;
+            Vort_fil = vort;
+            Vortu_fil = vort.*U;
+            Vortv_fil = vort.*V;
+        else
 [u_fil,v_fil,EG,kx,ky,Nkx,Nky] = func_Spectral_GaussianFilter(l,Nx,Ny,U,V,gaussian); %U(y,x)
 % if(0==1)
-% loglog(kx(1:Nkx).*2.*pi./Nx,EG(10,1:Nkx),'--r')
+% loglog(kx(1:Nkx).*2.*pi./Nx,diag(EG(1:Nky,1:Nkx)),'--r')
 % xline(2.*pi/l);
 % end
 [uu_fil,vv_fil,EEG,kx,ky,Nkx,Nky] = func_Spectral_GaussianFilter(l,Nx,Ny,U.*U,V.*V,gaussian); % U*U(y,x)
@@ -248,6 +352,7 @@ else
 % Vorticita
 [Vort_fil,vort_fil,vorteeG,kx,ky,Nkx,Nky] = func_Spectral_GaussianFilter(l,Nx,Ny,vort,vort,gaussian); % U*V(y,x)
 [Vortu_fil,Vortv_fil,vorteeG,kx,ky,Nkx,Nky] = func_Spectral_GaussianFilter(l,Nx,Ny,vort.*U,vort.*V,gaussian); % U*V(y,x)
+        end
 end
 % Imaginary part being zero
 u_fil = real(u_fil);
@@ -344,52 +449,100 @@ Vortv_fil = real(Vortv_fil);
                              
             end
         end
-        
-Flusso_l (:,t,s) = Flusso_Energia(:);
-Flusso_Enstro_l (:,t,s) = Flusso_Enstrofia(:);
-end
-end
+
+  
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%             Save frames (without too much Nan)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Flusso_l (:,it,s) = Flusso_Energia(:);
+Flusso_Enstro_l (:,it,s) = Flusso_Enstrofia(:);
+
+
+end%------------------------------------------------------------------------------------- End: LOOP on l
+% end%------------------------------------------------------------------------------------- End: condition if too much Nan
+clear Du_Dx Dv_Dx Du_Dy Dv_Dy DVort_Dx DVort_Dy 
+% else% File does not exist.
+%     numt = numt + gapt;
+% end%------------------------------------------------------------------------------------- End: file exists
+end%--------------------------------------------------------------------------------------End: LOOP on t
+nbFinalt = it;
+clear t
+disp(['Number of frames:',num2str(nbFinalt)])
 % Average in time.
 Flusso_l_mt = squeeze(mean(Flusso_l,2));
 Flusso_Enstro_l_mt = squeeze(mean(Flusso_Enstro_l,2));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% idtc=60; % This is the truncation parameter.
-% xmin=80;
-% xmax=180;
-% ymin=40;
-% ymax=85;
-% xmin=idxtc;
-% xmax=Nx-idxtc;
-Nx_tc=length([xmin:xmax]);
-% ymin=idytc;
-% ymax=Ny-idytc;
-Ny_tc=length([ymin:ymax]);
+%                                                               AVERAGE II:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if(0==0)%----------------------------------- average 2 Options
+% un critere supllementaire pour suprimer la partie interne de la zone a
+% moyenner.
+Ax=[xmin:xmax];
+Ay=[ymin:ymax];
+%
+if(radius==0)
+circlePixels = ones(Ny,Nx);
+else
+[columnsInImage rowsInImage] = meshgrid(1:Ny, 1:Nx);
+% Next create the circle in the image.
+% radius = 10;
+centerX = Ny/2;
+centerY = Nx/2;
+circlePixels = double( (rowsInImage - centerY).^2 ...
+    + (columnsInImage - centerX).^2 <= radius.^2);
+circlePixels(find(circlePixels==1))=nan;
+circlePixels(find(circlePixels==0))=1;
+end
+%
+Nx_tc=length(Ax);
+Ny_tc=length(Ay);
+%--------------------------------------------------------------------------
 % Energia
 FLUSSO_Energia_tc = zeros (Ny_tc,Nx_tc,length(vl));
 FLUSSO_Energia_l = zeros (length(vl),1);
-FLUSSO_Energia_tl = zeros (length(vl),nFrames);
+FLUSSO_Energia_tl = zeros (length(vl),[]);
 % Enstrofia
 FLUSSO_Enstrofia_tc = zeros (Ny_tc,Nx_tc,length(vl));
 FLUSSO_Enstrofia_l = zeros (length(vl),1);
-FLUSSO_Enstrofia_tl = zeros (length(vl),nFrames);
+FLUSSO_Enstrofia_tl = zeros (length(vl),[]);
+%--------------------------------------------------------------------------
 for ids=1:length(vl)
     % Energia
     FLUSSO_Energia = reshape(Flusso_l_mt(:,ids),Ny,Nx);
-    FLUSSO_Energia_tc(:,:,ids) = FLUSSO_Energia(ymin:ymax,xmin:xmax);
-    FLUSSO_Energia_l(ids) = mean(mean(FLUSSO_Energia_tc(:,:,ids)));
+    FLUSSO_Energia = FLUSSO_Energia.*circlePixels;
+    FLUSSO_Energia_tc(:,:,ids) = FLUSSO_Energia(Ay,Ax);
+    FLUSSO_Energia_NN = FLUSSO_Energia(Ay,Ax);
+    NoNan = ~isnan(FLUSSO_Energia_NN);
+    FLUSSO_Energia_l(ids) = mean(FLUSSO_Energia_NN(NoNan));
+%     FLUSSO_Energia_l(ids) = mean(mean(FLUSSO_Energia_tc(:,:,ids)));
     % Enstrofia
     FLUSSO_Enstrofia = reshape(Flusso_Enstro_l_mt(:,ids),Ny,Nx);
-    FLUSSO_Enstrofia_tc(:,:,ids) = FLUSSO_Enstrofia(ymin:ymax,xmin:xmax);
-    FLUSSO_Enstrofia_l(ids) = mean(mean(FLUSSO_Enstrofia_tc(:,:,ids)));
-    for t=1:nFrames
+    FLUSSO_Enstrofia = FLUSSO_Enstrofia.*circlePixels;
+    FLUSSO_Enstrofia_tc(:,:,ids) = FLUSSO_Enstrofia(Ay,Ax);
+    FLUSSO_Enstrofia_NN = FLUSSO_Enstrofia(Ay,Ax);
+    NoNan = ~isnan(FLUSSO_Enstrofia_NN);
+    FLUSSO_Enstrofia_l(ids) = mean(FLUSSO_Enstrofia_NN(NoNan));
+%     FLUSSO_Enstrofia_l(ids) = mean(mean(FLUSSO_Enstrofia_tc(:,:,ids)));
+    for t=1:nbFinalt
         % Energia
         FLUSSO_Energia_t = reshape(Flusso_l(:,t,ids),Ny,Nx);
-        FLUSSO_Energia_tl(ids,t) = mean(mean(FLUSSO_Energia_t(ymin:ymax,xmin:xmax)));
+        FLUSSO_Energia_t = FLUSSO_Energia_t.*circlePixels;
+        FLUSSO_Energia_t = FLUSSO_Energia_t(Ay,Ax);
+        NoNan = ~isnan(FLUSSO_Energia_t);
+        FLUSSO_Energia_tl(ids,t) = mean(FLUSSO_Energia_t(NoNan));
+%         FLUSSO_Energia_tl(ids,t) = mean(mean(FLUSSO_Energia_t(Ay,Ax)));
         % Enstrofia
         FLUSSO_Enstrofia_t = reshape(Flusso_Enstro_l(:,t,ids),Ny,Nx);
-        FLUSSO_Enstrofia_tl(ids,t) = mean(mean(FLUSSO_Enstrofia_t(ymin:ymax,xmin:xmax)));
+        FLUSSO_Enstrofia_t = FLUSSO_Enstrofia_t.*circlePixels;
+        FLUSSO_Enstrofia_t = FLUSSO_Enstrofia_t(Ay,Ax);
+        NoNan = ~isnan(FLUSSO_Enstrofia_t);
+        FLUSSO_Energia_tl(ids,t) = mean(FLUSSO_Enstrofia_t(NoNan));
+%         FLUSSO_Enstrofia_tl(ids,t) = mean(mean(FLUSSO_Enstrofia_t(Ay,Ax)));
     end
 end
+end%----------------------------------- End average 2 Options
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                    PLOTS: 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -398,9 +551,34 @@ end
 % edge of the domain.
 if(0==0)
 figure
-contourf(X(ymin:ymax,xmin:xmax),Y(ymin:ymax,xmin:xmax),FLUSSO_Energia_tc(:,:,120), 250, 'LineStyle','none');
-title('Energy flux')
+contourf(XX,YY,UU, 250, 'LineStyle','none');
+hold on
+scatter(XX(idymin,idxmin),YY(idymin,idxmin), [], 'Xr')
+scatter(XX(idymin,idxmax),YY(idymin,idxmax), [], 'Xr')
+scatter(XX(idymax,idxmin),YY(idymax,idxmin), [], 'Xr')
+scatter(XX(idymax,idxmax),YY(idymax,idxmax), [], 'Xr')
 colorbar
+title('Full field - crosses are truncation')
+%
+figure
+contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,2), 250, 'LineStyle','none');
+% imagesc(FLUSSO_Energia_tc(:,:,2));
+title('Energy flux - small scale in the averaged surface')
+colorbar
+caxis([-0.01 0.01]);
+%
+figure
+contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,7), 250, 'LineStyle','none');
+title('Energy flux - medium scale in the averaged surface')
+colorbar
+caxis([-0.01 0.01]);
+%
+figure
+contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,17), 250, 'LineStyle','none');
+title('Energy flux - large scale  in the averaged surface')
+colorbar
+caxis([-0.01 0.01]);
+%
 figure
 contourf(X,Y,U, 250, 'LineStyle','none');
 hold on
@@ -409,15 +587,22 @@ scatter(X(ymin,xmax),Y(ymin,xmax), [], 'Xr')
 scatter(X(ymax,xmin),Y(ymax,xmin), [], 'Xr')
 scatter(X(ymax,xmax),Y(ymax,xmax), [], 'Xr')
 colorbar
-title('Full field - crosses are truncation')
+title('Full truncated field - crosses are averaging truncation')
+% figure
+% contourf(X,Y,u_fil, 250, 'LineStyle','none');
+% colorbar
+% title('U filterd')
 figure
-contourf(X,Y,u_fil, 250, 'LineStyle','none');
+contourf(X(Ay,Ax),Y(Ay,Ax),U(Ay,Ax), 250, 'LineStyle','none');
 colorbar
-title('U filterd')
-figure
-contourf(X(ymin:ymax,xmin:xmax),Y(ymin:ymax,xmin:xmax),U(ymin:ymax,xmin:xmax), 250, 'LineStyle','none');
-colorbar
-title('Truncated field')
+title('Averaging truncated field')
+% nombre de Nan
+figure; hold on
+plot(NbNan_U,'linewidth',2)
+% plot(NbNan_V,'linewidth',2)
+% plot(NbNan_Vort,'linewidth',2)
+legend('Nan on U')
+
 end
 %% ###########################################################################################################################
 %  ###########################################################################################################################
@@ -429,7 +614,7 @@ end
 Fluxes = [FLUSSO_Energia_l,FLUSSO_Enstrofia_l];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Time averaged
-fileout = [roots,Name,'/Fluxes_mt'] ;
+fileout = [roots,Name,'/Fluxes_mt_Fr_',num2str(nTime),'_Itime_',num2str(Itime),'_Idymin_',num2str(idymin)] ;
 filename = sprintf('%s.mtx',fileout);
 fid = fopen(filename,'wb');
 fwrite(fid,size(Fluxes,1),'ulong');
@@ -439,7 +624,7 @@ fclose(fid);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Time dependant
 % % % 
-fileout1 = [roots,Name,'/Energy_flux_Fr_',num2str(nTime)];
+fileout1 = [roots,Name,'/Energy_flux_Fr_',num2str(nTime),'_Itime_',num2str(Itime),'_Idymin_',num2str(idymin)];
 filename1 = sprintf('%s.mtx',fileout1);
 fid = fopen(filename1,'wb');
 fwrite(fid,size(FLUSSO_Energia_tl,1),'ulong');
@@ -447,7 +632,7 @@ fwrite(fid,size(FLUSSO_Energia_tl,2),'ulong');
 fwrite(fid,FLUSSO_Energia_tl(:),'float');
 fclose(fid);
 % % % 
-fileout1 = [roots,Name,'/Enstrophy_flux_Fr_',num2str(nTime)];
+fileout1 = [roots,Name,'/Enstrophy_flux_Fr_',num2str(nTime),'_Itime_',num2str(Itime),'_Idymin_',num2str(idymin)];
 filename1 = sprintf('%s.mtx',fileout1);
 fid = fopen(filename1,'wb');
 fwrite(fid,size(FLUSSO_Enstrofia_tl,1),'ulong');
@@ -455,4 +640,4 @@ fwrite(fid,size(FLUSSO_Enstrofia_tl,2),'ulong');
 fwrite(fid,FLUSSO_Enstrofia_tl(:),'float');
 fclose(fid);
 % % % 
-save([roots,Name,'/EFluxes_Spectral_infos.mat'],'Nkx','Nky','nFrames','x','y','kx','ky','Nx','Ny','vl','dx','dy')
+save([roots,Name,'/EFluxes_Spectral_infos.mat'],'Nkx','Nky','nFrames','Itime','kx','ky','Nx','Ny','vl','dx','dy')
