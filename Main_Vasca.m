@@ -5,20 +5,24 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'ESP_6A_east_180'; %
-roots = '/media/simon/simon/Campi/'; % Root path..
+%------------------------------------------------------- Polar Forcing
+Name = 'Exp001'; %
+roots = '/media/simon/simon/Polare/'; % Root path..
+%------------------------------------------------------- Cartesian Forcing
+% Name = 'ESP_31_180'; %
+% roots = '/media/simon/simon/'; % Root path..
 %**********************************************************
 
 % #########################################################################
 %                                                        DATI INFORMAZIONI:
 % #########################################################################
-run([roots,Name,'/InfosFile.m'])
+run([roots,Name,'/InfosFile_Vasca.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-nFrames=2
+nFrames=2;%1180;%
 Tmax=nFrames;%2401; % Time max wanted, nFrames being its maximum value
-Itime=1;
+Itime=1;%1151;
 nTime = Tmax-Itime+1;
 %
 Tocm = 1.; % Fattore necessario per avere cm -> 1. if it is already in cm
@@ -40,15 +44,15 @@ Create_Grid_pol_Vasca
 %--------------------------------------------------------------------------
 
 % SpectralAnalysis_FB
-% 
+
 % SpectralAnalysis_FB_Plots
 
 %--------------------------------------------------------------------------
 %                           ->>> Spectral Analysis in Cartesian coordinate
 %--------------------------------------------------------------------------
-SpectralAnalysis_FF
-  
-SpectralAnalysis_FF_Plots
+% SpectralAnalysis_FF
+%   
+% SpectralAnalysis_FF_Plots
 
 
 %--------------------------------------------------------------------------
@@ -56,7 +60,8 @@ SpectralAnalysis_FF_Plots
 %--------------------------------------------------------------------------
 
 % DerivateVorticita
-% % % % % % %   
+% % %
+% SortingDirection = 'descend';
 % PV_mono
 
 %--------------------------------------------------------------------------
@@ -67,9 +72,9 @@ SpectralAnalysis_FF_Plots
 %--------------------------------------------------------------------------
 %                                                              ->>> Efluxes
 %--------------------------------------------------------------------------
-% EFluxes_Spectral
-% % 
-% EFluxes_Spectral_plots
+EFluxes_Spectral_transitVasca
+% % % % 
+EFluxes_Spectral_transitVasca_plots
 
 
 %--------------------------------------------------------------------------

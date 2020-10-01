@@ -14,10 +14,12 @@ roots = '/media/simon/simon/Torino/';
 % #########################################################################
 run([roots,Name,'/InfosFile_Torino.m'])
 load('besselzeros2_C.mat'); 
-load([roots,Name,'/infos.mat'])
+% % % % load([roots,Name,'/infos.mat'])
 %---------------------------------------------
 %-------------- Frames & Tocm
-nFrames = 2%((endi-starti)/step + 1);
+
+nFrames = 100 %((endi-starti)/step + 1);
+Tstep = 1;
 Tmax=nFrames;
 Itime=1;
 nTime = Tmax-Itime+1;
@@ -47,9 +49,9 @@ Create_Grid_pol_Torino_cm
 %--------------------------------------------------------------------------
 %                           ->>> Spectral Analysis in Cartesian coordinate
 %--------------------------------------------------------------------------
-% SpectralAnalysis_FF
+SpectralAnalysis_FF
 %   
-% SpectralAnalysis_FF_Plots
+SpectralAnalysis_FF_Plots
 
 %--------------------------------------------------------------------------
 %                                                   ->>> PV Monotonization
@@ -60,6 +62,6 @@ Create_Grid_pol_Torino_cm
 %--------------------------------------------------------------------------
 %                                                              ->>> Efluxes
 %--------------------------------------------------------------------------
-EFluxes_Spectral
-
-% EFluxes_Spectral_plots
+% EFluxes_Spectral_Torino
+% % 
+% EFluxes_Spectral_Torino_plots

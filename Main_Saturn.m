@@ -16,7 +16,7 @@ run([roots,Name,'/InfosFile_Saturn.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-Tmax=1;%2401; % Time max wanted, nFrames being its maximum value
+Tmax=2;%2401; % Time max wanted, nFrames being its maximum value
 Itime=1;
 nTime = Tmax-Itime+1;
 %
@@ -37,30 +37,30 @@ Create_Grid_pol_Saturn
 %--------------------------------------------------------------------------
 % ->>> Spectral Analysis
 %--------------------------------------------------------------------------
-
-SpectralAnalysis_FB
-
-SpectralAnalysis_Plots
+% 
+% SpectralAnalysis_FB
+% 
+% SpectralAnalysis_FB_Plots
 
 
 %--------------------------------------------------------------------------
 % ->>> PV Monotonization
 %--------------------------------------------------------------------------
+%% few points here
+% 1/ Note that DerivateVorticita.m is not called here but the vorticity comes
+%    from Data2RegularGrid.m in the folder: cd([roots,Name])
+% 2/ Attention aussi dans la routine il y a une ligne Vz = Pvpolrm.*0; qui
+%    permet de ne pas charger la vitesse zonale.
+% 3/ In the north pole the sorting algorithm needs to be 'ascend' instead
+%    of descend.
 
-% DerivateVorticita
-% % % % %   
+% SortingDirection = 'ascend';
+% %
 % PV_mono
 
 %--------------------------------------------------------------------------
-% ->>> Energy & Enstrophy fluxes
+%                                                              ->>> Efluxes
 %--------------------------------------------------------------------------
-% One has to choose how to discretise the smallest scales:
-% dl=0.4;
-% EFlux_Energy_old
-% EFlux_Enstrophy
-
-% passo_fr = 5;
-% Vl = [1:128];
-% % 
-% EFlux
-% EFlux_Plots
+EFluxes_Spectral
+% % % % % 
+EFluxes_Spectral_plots
