@@ -40,8 +40,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % pour l energie on a 0.5 * U^2
 E = 0.5 .* (U_2fft.*conj(U_2fft) + V_2fft.*conj(V_2fft)); %E(x,y)
-E1 = 0.5 .* (U_2fft.*conj(U_2fft)); %E(x,y)
-E2 = 0.5 .* (V_2fft.*conj(V_2fft)); %E(x,y)
+Ex = 0.5 .* (U_2fft.*conj(U_2fft)); %E(x,y)
+Ey = 0.5 .* (V_2fft.*conj(V_2fft)); %E(x,y)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -52,11 +52,13 @@ E_Tky = sum(E(:,:),1);
 EZ_Tky = E(1,:);
 ER_Tky = sum(E(2:end,:),1);
 %
-E1_Tky = sum(E1(:,:),1);
+Ex_Tky = sum(Ex(:,:),1);
+Ey_Tky = sum(Ey(:,:),1);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                 Energy for kx et -kx:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-E1_Tkx = sum(E1(:,:),2);
+Ex_Tkx = sum(Ex(:,:),2);
+Ey_Tkx = sum(Ey(:,:),2);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,7 +72,8 @@ E_ky = zeros([Nky,1]);
 EZ_ky = zeros([Nky,1]);
 ER_ky = zeros([Nky,1]);
 %
-E1_ky = zeros([Nky,1]);
+Ex_ky = zeros([Nky,1]);
+Ey_ky = zeros([Nky,1]);
 % A vector that corresponds to the different modes in matlab FFT.
 vky = ky.*sign(ky); 
 for iky_p=0:Nky-1 % que les ky positifs
@@ -80,10 +83,12 @@ for iky_p=0:Nky-1 % que les ky positifs
     EZ_ky(iky_p+1) = sum(EZ_Tky(l)); % This is equivalent than having a *2
     ER_ky(iky_p+1) = sum(ER_Tky(l)); % This is equivalent than having a *2
     %
-    E1_ky(iky_p+1) = sum(E1_Tky(l)); % This is equivalent than having a *2
+    Ex_ky(iky_p+1) = sum(Ex_Tky(l)); % This is equivalent than having a *2
+    Ey_ky(iky_p+1) = sum(Ey_Tky(l)); % This is equivalent than having a *2
 end
 %
-E1_kx = zeros([Nkx,1]);
+Ex_kx = zeros([Nkx,1]);
+Ey_kx = zeros([Nkx,1]);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                         Energy for kx:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,6 +96,6 @@ E1_kx = zeros([Nkx,1]);
 vkx = kx.*sign(kx); 
 for ikx_p=0:Nkx-1 % que les ky positifs
     l=(vkx==ikx_p);
-    E1_kx(ikx_p+1) = sum(E1_Tkx(l)); % This is equivalent than having a *2
-%     E2_kx(ikx_p+1) = sum(E2_Tkx(l)); % This is equivalent than having a *2
+    Ex_kx(ikx_p+1) = sum(Ex_Tkx(l)); % This is equivalent than having a *2
+    Ey_kx(ikx_p+1) = sum(Ey_Tkx(l)); % This is equivalent than having a *2
 end

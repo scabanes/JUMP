@@ -5,7 +5,7 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'EXPT03'; %
+Name = 'EXPT09'; %
 roots = '/media/simon/simon/Torino/';
 %**********************************************************
 
@@ -18,7 +18,7 @@ load('besselzeros2_C.mat');
 %---------------------------------------------
 %-------------- Frames & Tocm
 
-nFrames = 100 %((endi-starti)/step + 1);
+nFrames = 755 %((endi-starti)/step + 1);
 Tstep = 1;
 Tmax=nFrames;
 Itime=1;
@@ -49,6 +49,9 @@ Create_Grid_pol_Torino_cm
 %--------------------------------------------------------------------------
 %                           ->>> Spectral Analysis in Cartesian coordinate
 %--------------------------------------------------------------------------
+% Here the the velocity field are U(Nx,Ny).
+% FieldFrom_Torino as to be choosen in SpectralAnalysis_FF.m 
+% (lines 22 & 45-50)
 SpectralAnalysis_FF
 %   
 SpectralAnalysis_FF_Plots

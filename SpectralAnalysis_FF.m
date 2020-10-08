@@ -17,34 +17,11 @@
 %   Same for ky in y.
 
 % _________________________________________________________________________
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                                   LOAD:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Here we load velocity fields:
-[Vtheta_tot,b]=loadmtx([roots,Name,NameVt]);
-[Vr_tot,b]=loadmtx([roots,Name,NameVr]);
-% Here we map the loaded fields:
-[returnOK] = Maps(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,GridR_2C,GridT_2C,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,1)
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                             TRUNCATION:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% We truncated the domain size if necessary.
-Grid_Xp_cm=Grid_Xp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
-Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
-% Locally pseudo-cartesian grid see Read. 2015
-GridR_2C=GridR_2C(Ntmin:Ntmax,Nrmin:Nrmax);
-GridT_2C=GridT_2C(Ntmin:Ntmax,Nrmin:Nrmax);
-% -----------------------------------------------------Truncation
-theta = theta(1:length(Ntmin:Ntmax)); % Attenzione theta deve partire da zero..
-r = r(Nrmin:Nrmax); % Attenzione theta deve partire da zero..
-% Here we choose a pseudo cartesian grid 
-x = Ro.*theta; 
-y = r;
-% R=r(end);
-% r = r(Nrmin:Nrmax); % Attenzione theta deve partire da zero..
-% !!!!!! -------------------------
-% Nt = length(theta)
-% Nr = length(r)
+it=0;
+%----------------------- Torino
+FieldFrom_Torino
+%----------------------- 2DJupiter_Obs
+% FieldFrom_2DJupiter_Obs
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                     WINDOWING MATRICES:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -59,22 +36,35 @@ y = r;
 %  ###########################################################################################################################
 iit=0;
 for it=1:Tmax
-% it=Tmax;
-     disp(['step = ',num2str(it),' on ',num2str(Tmax)])
-%----------------- Reshape
-Vtheta = reshape(Vtheta_tot(:,it),Nti,Nri);
-Vr = reshape(Vr_tot(:,it),Nti,Nri);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% if(0==0)
-% figure; title('section we are working on')
-% contourf(Grid_Xp_cm,Grid_Yp_cm,Vtheta*100,15)%,'LineStyle','none')
-% colorbar
-% end
+%
+disp(['step = ',num2str(it),' on ',num2str(Tmax)])
+
+%##########################################################################
+%                                                                   Torino:
+%##########################################################################
+file = [roots,Name,'/merged.civ2/fig_',num2str(numt),'.nc'];
+if isfile(file)%------------------------------------------------------------------------------------- Init: file exists
+% compter les images
+numt = numt+gapt;% File exists.
+%----------------------- Torino
+FieldFrom_Torino
+%##########################################################################
+%                                                             2DJupiter_Obs:
+%##########################################################################
+% file = [roots,Name,'/StatisticalData.nc'];
+% if isfile(file)%------------------------------------------------------------------------------------- Init: file exists
+% %----------------------- 2DJupiter_Obs
+% FieldFrom_2DJupiter_Obs
+%##########################################################################
+%##########################################################################
+%##########################################################################
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %----------------- Truncation of the velocity fields
-Vtheta=Vtheta(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
-Vr=Vr(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
-%----------------- Isnan = 0
+Vtheta = Vtheta(idymin:idymax,idxmin:idxmax)';
+Vr = Vr(idymin:idymax,idxmin:idxmax)';
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %% % % % end%------------------------------------------------ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % if(0==0)
 % figure; title('section we are working on')
@@ -119,10 +109,16 @@ E_ky_t(:,iit) = E_ky;
 EZ_ky_t(:,iit) = EZ_ky;
 ER_ky_t(:,iit) = ER_ky;
 % QNSE
-E1_kx_t(:,iit) = E1_kx;
-E1_ky_t(:,iit) = E1_ky;
+Ex_kx_t(:,iit) = Ex_kx;
+Ey_kx_t(:,iit) = Ey_kx;
+%
+Ex_ky_t(:,iit) = Ex_ky;
+Ey_ky_t(:,iit) = Ey_ky;
 
-end
+else% File does not exist.
+    numt = numt + gapt;
+end%------------------------------------------------------------------------------------- End: file exists
+end%--------------------------------------------------------------------------------------End: LOOP on t
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                  PROJECTION ON FOURIER:
@@ -160,16 +156,23 @@ end
 % direction dx et dy on a un facteur 1/((Nx*Ny).^2)
 % IS = 0.5.*(1/((Nx*Ny).^2)).* sum(sum(U_2fft.*conj(U_2fft)))
 % -> lorsque la fft est normalisee par Nx et Ny on a pas ce facteur
-IS = 0.5.* sum(sum(U_2fft.*conj(U_2fft)))
-
+ETotal_S = 0.5.* sum(sum(U_2fft.*conj(U_2fft))) + 0.5.* sum(sum(V_2fft.*conj(V_2fft)))
 %------------- from analytical data
 % premiere integrale optionel qui somme sur les points x et y et non dans l
 % espace et donc divise par le nombre de point
-IA = 0.5.*(1/((Nx*Ny))).*sum(sum(Vtheta.*Vtheta))
+ETotal_A = 0.5.*(1/((Nx*Ny))).*sum(sum(Vtheta.*Vtheta)) + 0.5.*(1/((Nx*Ny))).*sum(sum(Vr.*Vr))
 % Integrale sur l espace x et y et divise par la surface
 S = (x(end)-x(1)).*(y(end)-y(1));
-IAA = (1/S).*0.5.*trapz(y,trapz(x,Vtheta.*Vtheta,1))
+ETotal_AA = (1/S).*0.5.*trapz(y,trapz(x,Vtheta.*Vtheta,1)) + (1/S).*0.5.*trapz(y,trapz(x,Vr.*Vr,1))
 
+disp('Energy integrate')
+% ET = 0.5.*sum(sum((U_2fft.*conj(U_2fft) + V_2fft.*conj(V_2fft) ) ))
+% ET = sum(sum(0.5.*U_2fft.*conj(U_2fft))) + sum(sum(0.5.*V_2fft.*conj(V_2fft)))
+% ET = sum(EZ_ky_t(:,end),1) + sum(ER_ky_t(:,end),1)
+disp(['EZ = ',num2str( mean(sum(EZ_ky_t,1)) )])
+disp(['ER = ',num2str( mean(sum(ER_ky_t,1)) )])
+disp(['ET = ',num2str( mean(sum(EZ_ky_t,1)) + mean(sum(ER_ky_t,1)) )])
+disp(['ET_xy = ',num2str( mean(sum(Ex_ky,1)) + mean(sum(Ey_ky,1)) )])
 %% ###########################################################################################################################
 %  ###########################################################################################################################
 %                                                   SAVE
@@ -199,22 +202,38 @@ fwrite(fid,size(ER_ky_t,1),'ulong');
 fwrite(fid,size(ER_ky_t,2),'ulong');
 fwrite(fid,ER_ky_t(:),'float');
 fclose(fid);
-% % % 
-fileout1 = [roots,Name,'/E1_kx_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+% % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fileout1 = [roots,Name,'/Ex_kx_Fr_',num2str(nTime),'_window_',num2str(windowing)];
 filename1 = sprintf('%s.mtx',fileout1);
 fid = fopen(filename1,'wb');
-fwrite(fid,size(E1_kx_t,1),'ulong');
-fwrite(fid,size(E1_kx_t,2),'ulong');
-fwrite(fid,E1_kx_t(:),'float');
+fwrite(fid,size(Ex_kx_t,1),'ulong');
+fwrite(fid,size(Ex_kx_t,2),'ulong');
+fwrite(fid,Ex_kx_t(:),'float');
 fclose(fid);
 % % % 
-fileout1 = [roots,Name,'/E1_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+fileout1 = [roots,Name,'/Ey_kx_Fr_',num2str(nTime),'_window_',num2str(windowing)];
 filename1 = sprintf('%s.mtx',fileout1);
 fid = fopen(filename1,'wb');
-fwrite(fid,size(E1_ky_t,1),'ulong');
-fwrite(fid,size(E1_ky_t,2),'ulong');
-fwrite(fid,E1_ky_t(:),'float');
+fwrite(fid,size(Ey_kx_t,1),'ulong');
+fwrite(fid,size(Ey_kx_t,2),'ulong');
+fwrite(fid,Ey_kx_t(:),'float');
+fclose(fid);
+% % % %%%%%%%%%%%%%%%%%%%
+fileout1 = [roots,Name,'/Ex_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+filename1 = sprintf('%s.mtx',fileout1);
+fid = fopen(filename1,'wb');
+fwrite(fid,size(Ex_ky_t,1),'ulong');
+fwrite(fid,size(Ex_ky_t,2),'ulong');
+fwrite(fid,Ex_ky_t(:),'float');
 fclose(fid);
 % % % 
-save([roots,Name,'/SpectralAnalysis_FF_infos.mat'],'Nkx','Nky','nFrames','x','y','kx','ky')
+fileout1 = [roots,Name,'/Ey_ky_Fr_',num2str(nTime),'_window_',num2str(windowing)];
+filename1 = sprintf('%s.mtx',fileout1);
+fid = fopen(filename1,'wb');
+fwrite(fid,size(Ey_ky_t,1),'ulong');
+fwrite(fid,size(Ey_ky_t,2),'ulong');
+fwrite(fid,Ey_ky_t(:),'float');
+fclose(fid);
+% % % 
+save([roots,Name,'/SpectralAnalysis_FF_infos.mat'],'Nkx','Nky','nFrames','x','y','kx','ky','Ro')
 end
