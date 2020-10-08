@@ -50,6 +50,9 @@ nTime = Tmax-Itime+1;
 %--------------------------------------------------------------------------
 %                           ->>> Spectral Analysis in Cartesian coordinate
 %--------------------------------------------------------------------------
+% Here the the velocity field are U(Nx,Ny).
+% FieldFrom_Torino as to be choosen in SpectralAnalysis_FF.m 
+% (lines 22 & 54-57)
 SpectralAnalysis_FF
 %   
 SpectralAnalysis_FF_Plots
