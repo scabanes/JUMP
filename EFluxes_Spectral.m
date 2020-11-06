@@ -1,58 +1,14 @@
 %--------------------------------------------------------------------------
-% Alias: test_filtraggio_23Janv20 in dev
+%                           EFluxes_Spectral.m 
+% code from Simon Cabanes - JUMP
+% mail: cabanes.simon@gmail.com
 %--------------------------------------------------------------------------
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                   PTS: Parameter To Set in InfosFile_Torino.m
+%                          Notes on the inputs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Here is the number of l in pixels on which I calculate the fluxes. It is 
-% theoretically limited by Nx and Ny the size of the velocity field in 
-% pixels. But it appears that with Nl = Nx & Ny, if the velocity field is
-% not periodic the filtering does not manage to filter out every large scales 
-% structures. If you impose Nl >> Nx then you finally get to a flux = 0 at 
-% largest scales. This might be improved by using a different filter than a
-% currently used gaussian, e.g une fonction porte. This can be changed in
-% func_Spatial_GaussianFilter.m and/or func_Spectral_GaussianFilter.m
-% % % % Nl = 221;
-% In spectral filtering it results that l=1 is an uresolved scale that
-% corresponds to the lunquist frequency and is theoretically out of
-% resolution, consequently the resulting filtered flow is meaning less at l=1. 
-% Spatial filtering however manage with it by filtering nothing.
-% % % % vl=([2:1:Nl]);
-% Here we can c
-% % % % FSpatial=0;% set to 1 to have spatial filter and 0 to have spectral filter.
-% % % % gaussian = 1; % If gaussian = 1 then G~exp(-6r^2/l^2) if 2 G~exp(-9r^2/(2l^2))
-%---------------------------------------------
-% Cartesien plein Nx=Ny=150
-% idxmin = 40;
-% idxmax = 189;
-% idymin = 50;
-% idymax = 199;
-%---------------------------------------------
-% Here I used Roland's interpolation through the data merged.civ2. The
-% following gapt allow to load data in time.
-% % % % gapt = 30;
-criterionNaN = 20; % UNSUED -- window on which the mean to replace Nan is calculated
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%---------------------------------------------
-% % % % % % % % % % % % % % % % % % % % % % % % % ---------------------------------------------------- for pseudo-cartesian Torino
-% % % % % % % % % % % % % % % % % % % % % % % % if(1==0)
-% % % % % % % % % % % % % % % % % % % % % % % % % Here we load velocity fields:
-% % % % % % % % % % % % % % % % % % % % % % % % [Vtheta_tot,b]=loadmtx([roots,Name,NameVt]);
-% % % % % % % % % % % % % % % % % % % % % % % % [Vr_tot,b]=loadmtx([roots,Name,NameVr]);
-% % % % % % % % % % % % % % % % % % % % % % % % [curl_tot,b]=loadmtx([roots,'EXPT03','/VortRelat_time_540_180_1105']);
-% % % % % % % % % % % % % % % % % % % % % % % % % Here we map the loaded fields:
-% % % % % % % % % % % % % % % % % % % % % % % % [returnOK] = Maps(Vtheta_tot,Vr_tot,Grid_Xp_cm,Grid_Yp_cm,GridR_2C,GridT_2C,Nti,Nri,Nrmin,Nrmax,Ntmin,Ntmax,theta,1)
-% % % % % % % % % % % % % % % % % % % % % % % % % We truncated the domain size if necessary.
-% % % % % % % % % % % % % % % % % % % % % % % % Grid_Xp_cm=Grid_Xp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
-% % % % % % % % % % % % % % % % % % % % % % % % Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
-% % % % % % % % % % % % % % % % % % % % % % % % % Locally pseudo-cartesian grid see Read. 2015
-% % % % % % % % % % % % % % % % % % % % % % % % GridR_2C=GridR_2C(Ntmin:Ntmax,Nrmin:Nrmax);
-% % % % % % % % % % % % % % % % % % % % % % % % GridT_2C=GridT_2C(Ntmin:Ntmax,Nrmin:Nrmax);
-% % % % % % % % % % % % % % % % % % % % % % % % % -----------------------------------------------------Truncation
-% % % % % % % % % % % % % % % % % % % % % % % % end
-% % % % % % % % % % % % % % % % % % % % % % % % % ---------------------------------------------------- for pseudo-cartesian Torino
+%%  Ux , Uy & vort: 
+%   are matrices (y,x), with (1 -> ymax,1 -> xmax), axis y , x positive
+%   downward , rightward.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                             Notes 
 %                               &
@@ -72,110 +28,37 @@ criterionNaN = 20; % UNSUED -- window on which the mean to replace Nan is calcul
 % Flusso_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),nFrames,length(vl));
 Flusso_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),[],length(vl));
 Flusso_Enstro_l = zeros (length([idymin:idymax])*length([idxmin:idxmax]),[],length(vl));
+% criterionNaN = 20; % UNSUED -- window on which the mean to replace Nan is calculated
 % ##################################################################################################################################################
 %                                                                                                                                   INTERPOLAZIONE :
 % ##################################################################################################################################################
-it=0;
-for t=Itime:Tmax %---------------------------------------------------------------------------Init: LOOP on t
-    
-% % % % % % % % if(0==0)%------------------------------------------------------- Cas Torino
-% file to load 
-% file = [roots,Name,'/merged.civ2/fig_',num2str(numt),'.nc'];
-% if isfile(file)
-%      numt = numt+gapt;% File exists.
-% % compter les images
-% % Velocity fields of cartesian velocities
-% UU = double(ncread(file,'U'));
-% VV = double(ncread(file,'V'));
-% curl = double(ncread(file,'curl'));
-% % regular cartesian coordinates
-% xx = double(ncread(file,'coord_x'));
-% yy = double(ncread(file,'coord_y'));
-% 
-% x = xx(idxmin:idxmax);
-% y = yy(idymin:idymax);
-% % % % % % % % % % % % % % % %----------------------------------------------for pseudo-cartesian Torino
-% % % % % % % % % % % % % % % % % % % % % % % % % % UU = reshape(Vtheta_tot(:,t),Nti,Nri);
-% % % % % % % % % % % % % % % % % % % % % % % % % % VV = reshape(Vr_tot(:,t),Nti,Nri);
-% % % % % % % % % % % % % % % % % % % % % % % % % % curl = reshape(curl_tot(:,t),Nti,Nri);
-% % % % % % % % % % % % % % % % % % % % % % % % % % %----------------- Truncation of the velocity fields
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % U=UU(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % V=VV(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % vort=curlL(Ntmin:Ntmax,Nrmin:Nrmax);%.*Tocm;
-% % % % % % % % % % % % % % % % % % % % % % % % % % %
-% % % % % % % % % % % % % % % % % % % % % % % % % % theta_tc = theta(1:length(idymin:idymax)); % Attenzione theta deve partire da zero..
-% % % % % % % % % % % % % % % % % % % % % % % % % % r_tc = r(idxmin:idxmax); % Attenzione theta deve partire da zero..
-% % % % % % % % % % % % % % % % % % % % % % % % % % % Here we choose a pseudo cartesian grid 
-% % % % % % % % % % % % % % % % % % % % % % % % % % xx = Ro.*theta; 
-% % % % % % % % % % % % % % % % % % % % % % % % % % yy = r;
-% % % % % % % % % % % % % % % % % % % % % % % % % % x = Ro.*theta_tc;
-% % % % % % % % % % % % % % % % % % % % % % % % % % y = r_tc;
-% % % % % % % % % % % % % % % %--------------------------------------------for pseudo-cartesian Torino
-% 
-% Nx = length(x);
-% Ny = length(y);
-% dx=mean(x(2:end)-x(1:end-1));
-% dy=mean(y(2:end)-y(1:end-1));
-% Lx = x(end)-x(1); % en m
-% Ly = y(end)-y(1); % en m
-% % Recreat the mesh grid
-% [XX,YY] = meshgrid(xx,yy);
-
-% % % % % % % % % % elseif(1==0)%------------------------------------------------------- Cas Obs Jupiter
-% % % % % % % % % % % file to load    
-% % % % % % % % % % file = [roots,Name,'StatisticalData.nc'];
-% % % % % % % % % % % Velocity fields of cartesian velocities
-% % % % % % % % % % UUL = double(ncread(file,'wm')); %wm(lat,long,z,time)
-% % % % % % % % % % VVL = double(ncread(file,'vm')); %vm(lat,long,z,time)
-% % % % % % % % % % curlL = double(ncread(file,'vort')); %vort(lat,long,z,time)
-% % % % % % % % % % % single time
-% % % % % % % % % % UU = UUL(:,:,1,t);
-% % % % % % % % % % VV = VVL(:,:,1,t);
-% % % % % % % % % % curl = curlL(:,:,1,t);
-% % % % % % % % % % %
-% % % % % % % % % % SU=size(UU);
-% % % % % % % % % % % regular cartesian coordinates
-% % % % % % % % % % xx=[1:(2.*pi.*R_Jup)./SU(2):2.*pi.*R_Jup];
-% % % % % % % % % % yy=[1:(pi.*R_Jup)./SU(1):pi.*R_Jup];
-% % % % % % % % % % %
-% % % % % % % % % % x = xx(idxmin:idxmax);
-% % % % % % % % % % y = yy(idymin:idymax);
-% % % % % % % % % % Nx = length(x);
-% % % % % % % % % % Ny = length(y);
-% % % % % % % % % % dx=mean(x(2:end)-x(1:end-1));
-% % % % % % % % % % dy=mean(y(2:end)-y(1:end-1));
-% % % % % % % % % % Lx = x(end)-x(1); % en m
-% % % % % % % % % % Ly = y(end)-y(1); % en m
-% % % % % % % % % % % Recreat the mesh grid
-% % % % % % % % % % [XX,YY] = meshgrid(xx,yy);
-% % % % % % % % % % 
-% % % % % % % % % % 
-% % % % % % % % % % else%------------------------------------------------------- Cas Vasca
-[UUL,b]=loadmtx([roots,Name,NameU]); % It has to be checked, but this is Uy
-[VVL,b]=loadmtx([roots,Name,NameV]); % It has to be checked, but this is Uy
-[curlL,b]=loadmtx([roots,Name,NameVort]);
-% We work on a squared cartesian grid. nodi is the length of it. 
-nodi = b(1)^0.5;
-[XX,YY]=Create_Grid_cart_Vasca('C',[nodi,nodi,-r_max_cm,r_max_cm,-r_max_cm,r_max_cm]);
-%
-UU = reshape(UUL(:,t),nodi,nodi);
-VV = reshape(VVL(:,t),nodi,nodi);
-curl = reshape(curlL(:,t),nodi,nodi);
-% % % % % % % % % % end
-
-% Cut to a rectangular table
-U = UU(idymin:idymax,idxmin:idxmax);
-V = VV(idymin:idymax,idxmin:idxmax);
+iit=0;
+for it=Itime:Tmax %---------------------------------------------------------------------------Init: LOOP on t
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                         SET FIELDS:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------------------------------
+%------------------------------------------------------- Cas Obs Jupiter
+FieldFrom_2DJupiter_Obs
+%------------------------------------------------------- Cas Obs Jupiter
+% FieldFrom_GCM
+%------------------------------------------------------- Cas the loadmtx
+% FieldFrom_mtx
+%--------------------------------------------------------------------------
+%----------------------------------------------- Cut to a rectangular table
+U = Ux(idymin:idymax,idxmin:idxmax);
+V = Uy(idymin:idymax,idxmin:idxmax);
 vort = curl(idymin:idymax,idxmin:idxmax);
 X = XX(idymin:idymax,idxmin:idxmax);
 Y = YY(idymin:idymax,idxmin:idxmax);
 clear VV curl
+%--------------------------------------------------------------------------
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                                                    NAN VALUES:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-it = it + 1;
+iit = iit + 1;
 % count Nan
-NbNan_U(it)=length(find(isnan(U)==1));
+NbNan_U(iit)=length(find(isnan(U)==1));
 % NbNan_V(t)=length(find(isnan(V)==1));
 % NbNan_Vort(t)=length(find(isnan(vort)==1));
 % Fill in the Nans in the table with 0 values
@@ -189,7 +72,7 @@ vort(isnan(vort))=0.;
 % disp(['Save frame ',num2str(it),' on frames ',num2str(t)])
 % disp('Too much Nan values')
 % else
-disp(['Save frame ',num2str(it),' on frames ',num2str(t)])
+disp(['Save frame ',num2str(iit),' on frames ',num2str(it)])
 % if(1==0)
 %  figure
 %  contourf(X,Y,U, 100, 'LineStyle','none');
@@ -455,8 +338,8 @@ Vortv_fil = real(Vortv_fil);
 %             Save frames (without too much Nan)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Flusso_l (:,it,s) = Flusso_Energia(:);
-Flusso_Enstro_l (:,it,s) = Flusso_Enstrofia(:);
+Flusso_Energ_l (:,iit,s) = Flusso_Energia(:);
+Flusso_Enstro_l (:,iit,s) = Flusso_Enstrofia(:);
 
 
 end%------------------------------------------------------------------------------------- End: LOOP on l
@@ -466,11 +349,11 @@ clear Du_Dx Dv_Dx Du_Dy Dv_Dy DVort_Dx DVort_Dy
 %     numt = numt + gapt;
 % end%------------------------------------------------------------------------------------- End: file exists
 end%--------------------------------------------------------------------------------------End: LOOP on t
-nbFinalt = it;
+nbFinalt = iit;
 clear t
 disp(['Number of frames:',num2str(nbFinalt)])
 % Average in time.
-Flusso_l_mt = squeeze(mean(Flusso_l,2));
+Flusso_Energ_l_mt = squeeze(mean(Flusso_Energ_l,2));
 Flusso_Enstro_l_mt = squeeze(mean(Flusso_Enstro_l,2));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                               AVERAGE II:
@@ -480,7 +363,7 @@ if(0==0)%----------------------------------- average 2 Options
 % moyenner.
 Ax=[xmin:xmax];
 Ay=[ymin:ymax];
-%
+% -------------- A full circle patch of NaN, conserved grid points are 1
 if(radius==0)
 circlePixels = ones(Ny,Nx);
 else
@@ -494,6 +377,15 @@ circlePixels = double( (rowsInImage - centerY).^2 ...
 circlePixels(find(circlePixels==1))=nan;
 circlePixels(find(circlePixels==0))=1;
 end
+% -------------- A full rectangle patch of NaN, conserved grid points are 1
+if(rlx==0 & rly==0)
+rectanglePixels = ones(Ny,Nx);
+else
+rectanglePixels = ones(Ny,Nx);
+rectanglePixels(ryo:ryo+rly,rxo:rxo+rlx) = nan;
+end
+% -------------- We form the final patch
+PatchOfNan = circlePixels.*rectanglePixels;
 %
 Nx_tc=length(Ax);
 Ny_tc=length(Ay);
@@ -509,8 +401,8 @@ FLUSSO_Enstrofia_tl = zeros (length(vl),[]);
 %--------------------------------------------------------------------------
 for ids=1:length(vl)
     % Energia
-    FLUSSO_Energia = reshape(Flusso_l_mt(:,ids),Ny,Nx);
-    FLUSSO_Energia = FLUSSO_Energia.*circlePixels;
+    FLUSSO_Energia = reshape(Flusso_Energ_l_mt(:,ids),Ny,Nx);
+    FLUSSO_Energia = FLUSSO_Energia.*PatchOfNan;
     FLUSSO_Energia_tc(:,:,ids) = FLUSSO_Energia(Ay,Ax);
     FLUSSO_Energia_NN = FLUSSO_Energia(Ay,Ax);
     NoNan = ~isnan(FLUSSO_Energia_NN);
@@ -518,7 +410,7 @@ for ids=1:length(vl)
 %     FLUSSO_Energia_l(ids) = mean(mean(FLUSSO_Energia_tc(:,:,ids)));
     % Enstrofia
     FLUSSO_Enstrofia = reshape(Flusso_Enstro_l_mt(:,ids),Ny,Nx);
-    FLUSSO_Enstrofia = FLUSSO_Enstrofia.*circlePixels;
+    FLUSSO_Enstrofia = FLUSSO_Enstrofia.*PatchOfNan;
     FLUSSO_Enstrofia_tc(:,:,ids) = FLUSSO_Enstrofia(Ay,Ax);
     FLUSSO_Enstrofia_NN = FLUSSO_Enstrofia(Ay,Ax);
     NoNan = ~isnan(FLUSSO_Enstrofia_NN);
@@ -526,18 +418,18 @@ for ids=1:length(vl)
 %     FLUSSO_Enstrofia_l(ids) = mean(mean(FLUSSO_Enstrofia_tc(:,:,ids)));
     for t=1:nbFinalt
         % Energia
-        FLUSSO_Energia_t = reshape(Flusso_l(:,t,ids),Ny,Nx);
-        FLUSSO_Energia_t = FLUSSO_Energia_t.*circlePixels;
+        FLUSSO_Energia_t = reshape(Flusso_Energ_l(:,t,ids),Ny,Nx);
+        FLUSSO_Energia_t = FLUSSO_Energia_t.*PatchOfNan;
         FLUSSO_Energia_t = FLUSSO_Energia_t(Ay,Ax);
         NoNan = ~isnan(FLUSSO_Energia_t);
         FLUSSO_Energia_tl(ids,t) = mean(FLUSSO_Energia_t(NoNan));
 %         FLUSSO_Energia_tl(ids,t) = mean(mean(FLUSSO_Energia_t(Ay,Ax)));
         % Enstrofia
         FLUSSO_Enstrofia_t = reshape(Flusso_Enstro_l(:,t,ids),Ny,Nx);
-        FLUSSO_Enstrofia_t = FLUSSO_Enstrofia_t.*circlePixels;
+        FLUSSO_Enstrofia_t = FLUSSO_Enstrofia_t.*PatchOfNan;
         FLUSSO_Enstrofia_t = FLUSSO_Enstrofia_t(Ay,Ax);
         NoNan = ~isnan(FLUSSO_Enstrofia_t);
-        FLUSSO_Energia_tl(ids,t) = mean(FLUSSO_Enstrofia_t(NoNan));
+        FLUSSO_Enstrofia_tl(ids,t) = mean(FLUSSO_Enstrofia_t(NoNan));
 %         FLUSSO_Enstrofia_tl(ids,t) = mean(mean(FLUSSO_Enstrofia_t(Ay,Ax)));
     end
 end
@@ -550,31 +442,22 @@ end%----------------------------------- End average 2 Options
 % truncated field on which we averaged the fluxes, i.e. getting rid off the
 % edge of the domain.
 if(0==0)
-figure
-contourf(XX,YY,UU, 250, 'LineStyle','none');
-hold on
-scatter(XX(idymin,idxmin),YY(idymin,idxmin), [], 'Xr')
-scatter(XX(idymin,idxmax),YY(idymin,idxmax), [], 'Xr')
-scatter(XX(idymax,idxmin),YY(idymax,idxmin), [], 'Xr')
-scatter(XX(idymax,idxmax),YY(idymax,idxmax), [], 'Xr')
-colorbar
-title('Full field - crosses are truncation')
 %
 figure
-contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,2), 250, 'LineStyle','none');
-% imagesc(FLUSSO_Energia_tc(:,:,2));
+% contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,4), 250, 'LineStyle','none');
+imagesc(FLUSSO_Energia_tc(:,:,2));
 title('Energy flux - small scale in the averaged surface')
 colorbar
-caxis([-0.01 0.01]);
+caxis([-0.001 0.001]);
 %
 figure
-contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,7), 250, 'LineStyle','none');
+contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,10), 250, 'LineStyle','none');
 title('Energy flux - medium scale in the averaged surface')
 colorbar
 caxis([-0.01 0.01]);
 %
 figure
-contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,17), 250, 'LineStyle','none');
+contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,18), 250, 'LineStyle','none');
 title('Energy flux - large scale  in the averaged surface')
 colorbar
 caxis([-0.01 0.01]);

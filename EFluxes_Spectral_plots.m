@@ -52,12 +52,12 @@ axes('FontSize',18,'Linewidth',2,'FontName','times',...
      'Position',[0.13 0.17 0.82 0.75])   
 hold on
 subplot ('Position',[0.13 0.17 0.82 0.75]) 
-% % % semilogx(Nx./vl,Energy_flux_t.*cmTom,'c')
-% % % hold on
+semilogx(1./(vl.*dx),Energy_flux_t.*cmTom,'c')
+hold on
 % semilogx(Nx./vl,Fluxes_mt(:,1).*cmTom,'LineWidth',3,'Color','b')
 semilogx(1./(vl.*dx),Fluxes_mt(:,1).*cmTom,'LineWidth',3,'Color','b')
 % semilogx(vl,Fluxes_mt(:,1).*cmTom,'LineWidth',3,'Color','b')
-hold on
+% hold on
 yline(0,':');
 % grid on
 box on
@@ -70,8 +70,8 @@ xlim([1./(vl(end).*dx) 1./(vl(1).*dx)])
 % % % jets/Vortices separation
 % % line([6 6],get(gca,'YLim'),'Color','k')
 line([1./(2.*dx) 1./(2.*dx)],get(gca,'YLim'),'Color','k')
-line([1./(7.*dx) 1./(7.*dx)],get(gca,'YLim'),'Color','k')
-% line([1./(17.*dx) 1./(17.*dx)],get(gca,'YLim'),'Color','k')
+% line([1./(10.*dx) 1./(10.*dx)],get(gca,'YLim'),'Color','k')
+line([1./(18.*dx) 1./(18.*dx)],get(gca,'YLim'),'Color','k')
 ylabel ('$\Pi$(m$^2$s$^{-3}$)','FontSize',18,'FontName','times','Interpreter','Latex')
 %xlabel ('$k$(cm$^{-1}$)','FontSize',18,'FontName','times','Interpreter','Latex')
 % xlabel ('$n$','FontSize',18,'FontName','times','Interpreter','Latex')
@@ -90,11 +90,11 @@ axes('FontSize',18,'Linewidth',2,'FontName','times',...
      'Position',[0.13 0.17 0.82 0.75])   
 hold on
 subplot ('Position',[0.13 0.17 0.82 0.75]) 
-% semilogx(Nx./vl,Enstrophy_flux_t,'c')
-% hold on
+semilogx(1./(vl.*dx),Enstrophy_flux_t,'c')
+hold on
 % semilogx(Nx./vl,Fluxes_mt(:,2),'LineWidth',3,'Color','k') % addimentional wavenumber
 semilogx(1./(vl.*dx),Fluxes_mt(:,2),'LineWidth',3,'Color','k') % enstrophy = f(m-1)
-hold on
+% hold on
 yline(0,':');
 % grid on
 box on

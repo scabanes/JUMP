@@ -7,6 +7,7 @@ close all
 %-------------- Nomenclature
 Name = 'Polar winds Arrate'; %
 roots = '/home/simon/Bureau/Esperimento-DICEA/Observations-Cassini-voyager/'; % Root path..
+CartGrid_Name = '/Data2Regular_CartesianGrid_infos_PN.mat'; % grid and data may change between north and south pole (PN and PS)
 %**********************************************************
 
 % #########################################################################
@@ -16,7 +17,7 @@ run([roots,Name,'/InfosFile_Saturn.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-Tmax=2;%2401; % Time max wanted, nFrames being its maximum value
+Tmax=1;%2401; % Time max wanted, nFrames being its maximum value
 Itime=1;
 nTime = Tmax-Itime+1;
 %
@@ -24,9 +25,16 @@ Tocm = 1.; % Fattore necessario per avere cm -> 1. if it is already in cm
 
 %---------------------------------------------
 %-------------- Grid
-Create_Grid_pol_Saturn
-
-
+% Create_Grid_pol_Saturn
+% #########################################################################
+%                                                                     GRID:
+% #########################################################################
+Create_Grid_mtx
+% #########################################################################
+%                                                                   FIELDS:
+% #########################################################################
+it=0;
+FieldFrom_mtx
 % #########################################################################
 %                                                                      RUN:
 % #########################################################################

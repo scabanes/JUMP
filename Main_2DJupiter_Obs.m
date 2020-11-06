@@ -17,21 +17,18 @@ load('besselzeros2_C.mat');
 % load([roots,Name,'/infos.mat'])
 %---------------------------------------------
 %-------------- Frames & Tocm
-nFrames = 3%((endi-starti)/step + 1);
+nFrames = 1%((endi-starti)/step + 1);
 Tmax=nFrames;
 Itime=1;
 nTime = Tmax-Itime+1;
 %
 % Tocm = 100.; % Fattore necessario per convertire in cm
 
-%---------------------------------------------
-%-------------- Grid
-% Create_Grid_pol_Torino_cm
-
-% u = ncread([roots,Name],'u');
-% v = ncread([roots,Name],'v');
-% imagesc(u(:,:,1,1)')
-
+% #########################################################################
+%                                                                   FIELDS:
+% #########################################################################
+it=0;
+FieldFrom_2DJupiter_Obs
 % #########################################################################
 %                                                                      RUN:
 % #########################################################################
@@ -53,9 +50,9 @@ nTime = Tmax-Itime+1;
 % Here the the velocity field are U(Nx,Ny).
 % FieldFrom_Torino as to be choosen in SpectralAnalysis_FF.m 
 % (lines 22 & 54-57)
-SpectralAnalysis_FF
-%   
-SpectralAnalysis_FF_Plots
+% SpectralAnalysis_FF
+% %   
+% SpectralAnalysis_FF_Plots
 
 %--------------------------------------------------------------------------
 %                                                   ->>> PV Monotonization
@@ -66,6 +63,6 @@ SpectralAnalysis_FF_Plots
 %--------------------------------------------------------------------------
 %                                                              ->>> Efluxes
 %--------------------------------------------------------------------------
-% % EFluxes_Spectral
+EFluxes_Spectral
 % % % % 
-% % EFluxes_Spectral_plots
+EFluxes_Spectral_plots

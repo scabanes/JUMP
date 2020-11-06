@@ -6,11 +6,11 @@ close all
 %---------------------------------------------
 %-------------- Nomenclature
 %------------------------------------------------------- Polar Forcing
-Name = 'Exp001'; %
-roots = '/media/simon/simon/Polare/'; % Root path..
+% Name = 'Exp001'; %
+% roots = '/media/simon/simon/Polare/'; % Root path..
 %------------------------------------------------------- Cartesian Forcing
-% Name = 'ESP_31_180'; %
-% roots = '/media/simon/simon/'; % Root path..
+Name = 'ESP_30'; %
+roots = '/media/simon/simon/'; % Root path..
 %**********************************************************
 
 % #########################################################################
@@ -20,7 +20,7 @@ run([roots,Name,'/InfosFile_Vasca.m'])
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-nFrames=2;%1180;%
+nFrames=3;%1180;%
 Tmax=nFrames;%2401; % Time max wanted, nFrames being its maximum value
 Itime=1;%1151;
 nTime = Tmax-Itime+1;
@@ -29,9 +29,13 @@ Tocm = 1.; % Fattore necessario per avere cm -> 1. if it is already in cm
 
 %---------------------------------------------
 %-------------- Grid
-Create_Grid_pol_Vasca
+Create_Grid_pol_Vasca % to be replaced by Create_Grid_mtx.m
 
-
+% #########################################################################
+%                                                                   FIELDS:
+% #########################################################################
+it=0;
+FieldFrom_mtx
 % #########################################################################
 %                                                                      RUN:
 % #########################################################################
@@ -72,9 +76,9 @@ Create_Grid_pol_Vasca
 %--------------------------------------------------------------------------
 %                                                              ->>> Efluxes
 %--------------------------------------------------------------------------
-EFluxes_Spectral_transitVasca
+EFluxes_Spectral
 % % % % 
-EFluxes_Spectral_transitVasca_plots
+EFluxes_Spectral_plots
 
 
 %--------------------------------------------------------------------------

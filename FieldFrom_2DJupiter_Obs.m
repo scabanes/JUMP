@@ -4,19 +4,18 @@
 if(it==0)
 % file to load    
 file = [roots,Name,'/StatisticalData.nc'];
+%---------------------------------------------------------------------LOAD:
 % Velocity fields of cartesian velocities
-Vtheta_zt = double(ncread(file,'wm')); %wm(lat,long,z,time)
-Vr_zt = double(ncread(file,'vm')); %vm(lat,long,z,time)
-curl_zt = double(ncread(file,'vort')); %vort(lat,long,z,time)
-% single time
-Vtheta = Vtheta_zt(:,:,1,1);
-Vr = Vr_zt(:,:,1,1);
-curl = curl_zt(:,:,1,1);
+Vtheta = double(ncread(file,'wm',[1,1,1,1],[361,720,1,1])); %wm(lat,long,z,time)
+Vr = double(ncread(file,'vm',[1,1,1,1],[361,720,1,1])); %vm(lat,long,z,time)
+curl = double(ncread(file,'vort',[1,1,1,1],[361,720,1,1])); %vort(lat,long,z,time)
 %
-SU=size(Vtheta);
-% regular cartesian coordinates
-xx=[1:(2.*pi.*R_Jup)./SU(2):2.*pi.*R_Jup];
-yy=[1:(pi.*R_Jup)./SU(1):pi.*R_Jup];
+lat = double(ncread(file,'lat'))';
+lon = double(ncread(file,'lon'))';
+Colat =  (lat - 90).*sign(lat - 90).*(pi/180); % [0 pi]
+%---------------------------------------------------------------------Grid:
+yy = Colat.*R_Jup;
+xx = lon.*(pi/180).*R_Jup;
 % Recreat the mesh grid
 [XX,YY] = meshgrid(xx,yy);
 [returnOK] = Maps_Cartesian(Vtheta,Vr,XX,YY,idxmin,idxmax,idymin,idymax)
@@ -27,13 +26,14 @@ end
 %########################################################################################################
 if(it>0)
 % Velocity fields of cartesian velocities
-Vtheta_zt = double(ncread(file,'wm')); %wm(lat,long,z,time)
-Vr_zt = double(ncread(file,'vm')); %vm(lat,long,z,time)
-curl_zt = double(ncread(file,'vort')); %vort(lat,long,z,time)
+Vtheta = double(ncread(file,'wm',[1,1,1,it],[361,720,1,1])); %wm(lat,long,z,time)
+Vr = double(ncread(file,'vm',[1,1,1,it],[361,720,1,1])); %vm(lat,long,z,time)
+curl = double(ncread(file,'vort',[1,1,1,it],[361,720,1,1])); %vort(lat,long,z,time)
 % single time
-Vtheta = Vtheta_zt(:,:,1,it);
-Vr = Vr_zt(:,:,1,it);
-curl = curl_zt(:,:,1,it);
+% ----- cartesian coordinates
+Ux = Vtheta;
+Uy = Vr;
+% curl = curl;
 %
 x = xx(idxmin:idxmax);
 y = yy(idymin:idymax);
