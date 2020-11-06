@@ -1,0 +1,1 @@
+% Here we create a grid.load([roots,Name,CartGrid_Name])Nx = length([idxmin:idxmax]);Ny = length([idymin:idymax]);%if(X_max==Y_max)r_max_cm = X_max;elsedisp('the grid is not square')end
