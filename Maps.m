@@ -14,7 +14,7 @@ colormap(cbrewer('div', 'RdBu', 30))
 colorbar
 mycmap = get(fig,'Colormap')
 set(fig,'Colormap',flipud(mycmap))
-caxis([-3 3]);
+% caxis([-3 3]);
 title('Full field: Zonal Velocity')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -39,13 +39,14 @@ Vr=Vr(Ntmin:Ntmax,Nrmin:Nrmax);
 % Cartesian grid
 Grid_Xp_cm=Grid_Xp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
 Grid_Yp_cm=Grid_Yp_cm(Ntmin:Ntmax,Nrmin:Nrmax);
-% Locally cartesian grid see Read. 2015
+% Locally pseudo cartesian grid see Read. 2015
 GridR_2C=GridR_2C(Ntmin:Ntmax,Nrmin:Nrmax);
 GridT_2C=GridT_2C(Ntmin:Ntmax,Nrmin:Nrmax);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                     Truncated field
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 figure; 
 contourf(Grid_Xp_cm,Grid_Yp_cm,Vtheta,250,'LineStyle','none')
 colormap(cbrewer('div', 'RdBu', 30))
@@ -53,8 +54,8 @@ colorbar
 title('Truncated section we are working on')
 
 figure; 
-contourf(GridT_2C,GridR_2C,flip(Vtheta),250,'LineStyle','none')
-colormap(cbrewer('div', 'RdBu', 30))
+contourf(GridT_2C,GridR_2C,flip(-Vtheta),400,'LineStyle','none')
+colormap(cbrewer('div', 'RdBu', 35))
 colorbar
 xlabel('r \theta [m]')
 ylabel('r [m]')

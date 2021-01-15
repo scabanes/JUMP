@@ -5,8 +5,10 @@ close all
 %**********************************************************
 %---------------------------------------------
 %-------------- Nomenclature
-Name = 'GCM'; %
-roots = '/media/simon/simon/DYNAMICO - ';
+% Name = 'Jupiter-JRS'; %
+Name = 'Saturn-SRS'; %
+roots = '/media/simon/simon/DYNAMICO - GCM/';
+% run([roots,Name,'/InfosFile_Jupiter_JRS.m'])
 % run([roots,Name,'/InfosFile_SaturnGCM.m'])
 run([roots,Name,'/InfosFile_SaturnGCM_Polar.m'])
 CartGrid_Name = '/Data2Regular_CartesianGrid_infos_PN.mat'; % grid and data may change between north and south pole (PN and PS)
@@ -18,7 +20,7 @@ CartGrid_Name = '/Data2Regular_CartesianGrid_infos_PN.mat'; % grid and data may 
 load('besselzeros2_C.mat'); 
 %---------------------------------------------
 %-------------- Frames & Tocm
-nFrames = 2%((endi-starti)/step + 1);
+nFrames = 1%((endi-starti)/step + 1);
 Tmax=nFrames;
 Itime=1;
 nTime = Tmax-Itime+1;
@@ -32,8 +34,13 @@ Create_Grid_mtx
 %                                                                   FIELDS:
 % #########################################################################
 it=0;
-% FieldFrom_GCM
-FieldFrom_mtx
+%--------------------------------------------------------------------------
+% POSSIBLE INPUTS:
+% - FieldFrom_GCM
+% - FieldFrom_mtx
+% - FieldFrom_Jupiter_JRS
+FieldFrom_Select
+%--------------------------------------------------------------------------
 % #########################################################################
 %                                                                      RUN:
 % #########################################################################
@@ -69,5 +76,7 @@ FieldFrom_mtx
 %                                                              ->>> Efluxes
 %--------------------------------------------------------------------------
 EFluxes_Spectral
+% % % % 
+EFluxes_Spectral_maps
 % % % % 
 EFluxes_Spectral_plots

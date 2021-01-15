@@ -9,7 +9,7 @@ close all
 % Name = 'Exp001'; %
 % roots = '/media/simon/simon/Polare/'; % Root path..
 %------------------------------------------------------- Cartesian Forcing
-Name = 'ESP_30'; %
+Name = 'ESP_31_180'; %
 roots = '/media/simon/simon/'; % Root path..
 %**********************************************************
 
@@ -35,7 +35,10 @@ Create_Grid_pol_Vasca % to be replaced by Create_Grid_mtx.m
 %                                                                   FIELDS:
 % #########################################################################
 it=0;
-FieldFrom_mtx
+%--------------------------------------------------------------------------
+% POSSIBLE INPUTS:
+% - FieldFrom_2DJupiter_Obs
+FieldFrom_Select
 % #########################################################################
 %                                                                      RUN:
 % #########################################################################

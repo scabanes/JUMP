@@ -38,12 +38,7 @@ for it=Itime:Tmax %-------------------------------------------------------------
 %                                                                         SET FIELDS:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %--------------------------------------------------------------------------
-%------------------------------------------------------- Cas Obs Jupiter
-FieldFrom_2DJupiter_Obs
-%------------------------------------------------------- Cas Obs Jupiter
-% FieldFrom_GCM
-%------------------------------------------------------- Cas the loadmtx
-% FieldFrom_mtx
+FieldFrom_Select
 %--------------------------------------------------------------------------
 %----------------------------------------------- Cut to a rectangular table
 U = Ux(idymin:idymax,idxmin:idxmax);
@@ -248,71 +243,12 @@ Vort_fil = real(Vort_fil);
 Vortu_fil = real(Vortu_fil);
 Vortv_fil = real(Vortv_fil);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                          DERIVATE D/Dx:
+%                                                                                   DERIVATE D/Dx & D/Dy:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%% ciclo per la derivata rispetto ad x
-        for q = 1:Nx-1
-            
-            if q == 1
-                
-                Du_Dx (:,q) = (u_fil(:,q+1)-u_fil(:,q))/dx;
-                Dv_Dx (:,q) = (v_fil(:,q+1)-v_fil(:,q))/dx;
-                %
-                DVort_Dx (:,q) = (Vort_fil(:,q+1)-Vort_fil(:,q))/dx;
-
-               
-            else
-                
-            Du_Dx (:,q) = (u_fil(:,q+1)-u_fil(:,q-1))/(2*dx);
-            Dv_Dx (:,q) = (v_fil(:,q+1)-v_fil(:,q-1))/(2*dx);
-            %
-            DVort_Dx (:,q) = (Vort_fil(:,q+1)-Vort_fil(:,q-1))/(2*dx);
-
-            
-            end
-            
-        end
-        
-        for q = Nx
-            
-              Du_Dx (:,q) = (u_fil(:,q)-u_fil(:,q-1))/dx;
-              Dv_Dx (:,q) = (v_fil(:,q)-v_fil(:,q-1))/dx;
-              %
-              DVort_Dx (:,q) = (Vort_fil(:,q)-Vort_fil(:,q-1))/dx;
-            
-        end
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                                          DERIVATE D/Dy:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%% ciclo per la derivata rispetto a y..dx=dy
-        for p = 1: Ny-1
-            
-            if p == 1
-                
-                Du_Dy (p,:) = (u_fil (p+1,:)-u_fil (p,:))/dy;
-                Dv_Dy (p,:) = (v_fil (p+1,:)-v_fil (p,:))/dy;
-                %
-                DVort_Dy (p,:) = (Vort_fil (p+1,:)-Vort_fil (p,:))/dy;
-               
-            else
-                
-            Du_Dy (p,:) = (u_fil (p+1,:)-u_fil (p-1,:))/(2*dy);
-            Dv_Dy (p,:) = (v_fil (p+1,:)-v_fil (p-1,:))/(2*dy);
-            %
-            DVort_Dy (p,:) = (Vort_fil (p+1,:)-Vort_fil (p-1,:))/(2*dy);
-            
-            end
-            
-        end
-        
-        for p = Ny
-            
-              Du_Dy (p,:) = (u_fil (p,:)-u_fil (p-1,:))/dy;
-              Dv_Dy (p,:) = (v_fil (p,:)-v_fil (p-1,:))/dy;
-              %
-              DVort_Dy (p,:) = (Vort_fil (p,:)-Vort_fil (p-1,:))/dy;
-            
-        end
+%------------ derivative o along x
+[Du_Dx,Dv_Dx,DVort_Dx] = func_Derivative_xy(DevType_x,u_fil,v_fil,Vort_fil,dx,Nx);
+%------------ derivative o along y
+[Du_Dy,Dv_Dy,DVort_Dy] = func_Derivative_xy(DevType_y,u_fil,v_fil,Vort_fil,dy,Ny);
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                                                 FLUSSI:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -355,16 +291,19 @@ disp(['Number of frames:',num2str(nbFinalt)])
 % Average in time.
 Flusso_Energ_l_mt = squeeze(mean(Flusso_Energ_l,2));
 Flusso_Enstro_l_mt = squeeze(mean(Flusso_Enstro_l,2));
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                               AVERAGE II:
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                                                                                             AVERAGE:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if(0==0)%----------------------------------- average 2 Options
 % un critere supllementaire pour suprimer la partie interne de la zone a
 % moyenner.
-Ax=[xmin:xmax];
-Ay=[ymin:ymax];
+Ax=[Av_xmin:Av_xmax];
+Ay=[Av_ymin:Av_ymax];
 % -------------- A full circle patch of NaN, conserved grid points are 1
-if(radius==0)
+if(ICradius==0 && ECradius==0)
 circlePixels = ones(Ny,Nx);
 else
 [columnsInImage rowsInImage] = meshgrid(1:Ny, 1:Nx);
@@ -372,10 +311,17 @@ else
 % radius = 10;
 centerX = Ny/2;
 centerY = Nx/2;
+if(ICradius ~= 0)
 circlePixels = double( (rowsInImage - centerY).^2 ...
-    + (columnsInImage - centerX).^2 <= radius.^2);
+    + (columnsInImage - centerX).^2 <= ICradius.^2);
 circlePixels(find(circlePixels==1))=nan;
 circlePixels(find(circlePixels==0))=1;
+elseif(ECradius ~= 0)
+circlePixels = double( (rowsInImage - centerY).^2 ...
+    + (columnsInImage - centerX).^2 <= ECradius.^2);
+circlePixels(find(circlePixels==1))=1;
+circlePixels(find(circlePixels==0))=nan;
+end
 end
 % -------------- A full rectangle patch of NaN, conserved grid points are 1
 if(rlx==0 & rly==0)
@@ -434,7 +380,9 @@ for ids=1:length(vl)
     end
 end
 end%----------------------------------- End average 2 Options
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                    PLOTS: 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -442,44 +390,18 @@ end%----------------------------------- End average 2 Options
 % truncated field on which we averaged the fluxes, i.e. getting rid off the
 % edge of the domain.
 if(0==0)
-%
-figure
-% contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,4), 250, 'LineStyle','none');
-imagesc(FLUSSO_Energia_tc(:,:,2));
-title('Energy flux - small scale in the averaged surface')
-colorbar
-caxis([-0.001 0.001]);
-%
-figure
-contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,10), 250, 'LineStyle','none');
-title('Energy flux - medium scale in the averaged surface')
-colorbar
-caxis([-0.01 0.01]);
-%
-figure
-contourf(X(Ay,Ax),Y(Ay,Ax),FLUSSO_Energia_tc(:,:,18), 250, 'LineStyle','none');
-title('Energy flux - large scale  in the averaged surface')
-colorbar
-caxis([-0.01 0.01]);
-%
+    %--------------------------------------------- Averaged Area
 figure
 contourf(X,Y,U, 250, 'LineStyle','none');
 hold on
-scatter(X(ymin,xmin),Y(ymin,xmin), [], 'Xr')
-scatter(X(ymin,xmax),Y(ymin,xmax), [], 'Xr')
-scatter(X(ymax,xmin),Y(ymax,xmin), [], 'Xr')
-scatter(X(ymax,xmax),Y(ymax,xmax), [], 'Xr')
+scatter(X(Av_ymin,Av_xmin),Y(Av_ymin,Av_xmin), [], 'Xr')
+scatter(X(Av_ymin,Av_xmax),Y(Av_ymin,Av_xmax), [], 'Xr')
+scatter(X(Av_ymax,Av_xmin),Y(Av_ymax,Av_xmin), [], 'Xr')
+scatter(X(Av_ymax,Av_xmax),Y(Av_ymax,Av_xmax), [], 'Xr')
 colorbar
 title('Full truncated field - crosses are averaging truncation')
-% figure
-% contourf(X,Y,u_fil, 250, 'LineStyle','none');
-% colorbar
-% title('U filterd')
-figure
-contourf(X(Ay,Ax),Y(Ay,Ax),U(Ay,Ax), 250, 'LineStyle','none');
-colorbar
-title('Averaging truncated field')
-% nombre de Nan
+
+    %--------------------------------------------- Number of Nan if any
 figure; hold on
 plot(NbNan_U,'linewidth',2)
 % plot(NbNan_V,'linewidth',2)
@@ -489,7 +411,23 @@ legend('Nan on U')
 end
 %% ###########################################################################################################################
 %  ###########################################################################################################################
-%                                                   SAVE
+%                                                   SAVE for maps
+%  ###########################################################################################################################
+%  ###########################################################################################################################
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Time mean, in the average area, at all scale.
+% % % 
+fileout1 = [roots,Name,'/Energy_flux_maps_Fr_',num2str(nTime),'_Itime_',num2str(Itime),'_Idymin_',num2str(idymin)];
+filename1 = sprintf('%s.mtx',fileout1);
+fid = fopen(filename1,'wb');
+fwrite(fid,size(FLUSSO_Energia_tc,1),'ulong');
+fwrite(fid,size(FLUSSO_Energia_tc,2),'ulong');
+fwrite(fid,size(FLUSSO_Energia_tc,3),'ulong');
+fwrite(fid,FLUSSO_Energia_tc(:),'float');
+fclose(fid);
+%% ###########################################################################################################################
+%  ###########################################################################################################################
+%                                                   SAVE for plots
 %  ###########################################################################################################################
 %  ###########################################################################################################################
 % FLUSSO_Energia_l(length(vl),1)
@@ -523,4 +461,4 @@ fwrite(fid,size(FLUSSO_Enstrofia_tl,2),'ulong');
 fwrite(fid,FLUSSO_Enstrofia_tl(:),'float');
 fclose(fid);
 % % % 
-save([roots,Name,'/EFluxes_Spectral_infos.mat'],'Nkx','Nky','nFrames','Itime','kx','ky','Nx','Ny','vl','dx','dy')
+save([roots,Name,'/EFluxes_Spectral_infos.mat'],'Nkx','Nky','Nx_tc','Ny_tc','nFrames','Itime','kx','ky','Nx','Ny','vl','dx','dy')
